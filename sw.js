@@ -1,12 +1,12 @@
-// Service Worker for Finance PWA
+// Service Worker for Financial Life PWA
 
 const CACHE_NAME = 'financial-life-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/manifest.json'
+  './',
+  './index.html',
+  './style.css',
+  './app.js',
+  './manifest.json'
 ];
 
 // Install event - cache resources
