@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="description" content="Track your finances, bills, debts, and profits">
+    <title>Finance</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Obligations Sidebar -->
+        <div id="obligationsSidebar" class="obligations-sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+                <span id="toggleArrow">◀</span>
+            </button>
+            <div class="sidebar-content">
+                <h3>💸 Pending Obligations</h3>
+                
+                <div class="obligation-card">
+                    <div class="obligation-header">
+                        <span class="obligation-title">🙏 Tithe (10%)</span>
+                        <button class="btn-icon-small" onclick="editObligation('tithe')" title="Edit amount">✏️</button>
+                    </div>
+                    <div class="obligation-amount" id="pendingTithe">₦0.00</div>
+                    <button class="btn-small btn-success btn-full" onclick="payObligation('tithe')" style="margin-top: 0.5rem;">Pay Tithe</button>
+                </div>
+
+                <div class="obligation-card">
+                    <div class="obligation-header">
+                        <span class="obligation-title">🌱 Seed (10%)</span>
+                        <button class="btn-icon-small" onclick="editObligation('seed')" title="Edit amount">✏️</button>
+                    </div>
+                    <div class="obligation-amount" id="pendingSeed">₦0.00</div>
+                    <button class="btn-small btn-success btn-full" onclick="payObligation('seed')" style="margin-top: 0.5rem;">Pay Seed</button>
+                </div>
+
+                <div class="obligation-total">
+                    <span>Total Pending:</span>
+                    <strong id="totalPendingObligations">₦0.00</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <h1>💰 Finance</h1>
+            <button class="btn-icon" id="shareBtn" title="Export/Import Data">
+                <span>📤</span>
+            </button>
+        </header>
+
+        <!-- Total Overview -->
+        <section class="overview">
+            <div class="total-card">
+                <div class="total-label">Total Available</div>
+                <div class="total-amount" id="totalAmount">₦0.00</div>
+                <div id="afterObligations" style="display: none;">
+                    <div class="total-label" style="margin-top: 1rem; font-size: 0.875rem;">After Bills & Tithe</div>
+                    <div class="after-obligations-amount" id="afterObligationsAmount">₦0.00</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Accounts Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 onclick="toggleSection('accounts')" style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                    <span id="accountsToggleIcon">▼</span>
+                    💳 Accounts
+                </h2>
+                <button class="btn-primary" onclick="openAddAccountModal()">+ Add Account</button>
+            </div>
+            <div id="accountsContent" class="section-content">
+            <div class="accounts-grid" id="accountsGrid"></div>
+            </div>
+        </section>
+
+        <!-- Weekly Profits Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 onclick="toggleSection('profits')" style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                    <span id="profitsToggleIcon">▼</span>
+                    📈 This Week's Profits
+                </h2>
+                <button class="btn-primary" onclick="addProfit()">+ Add Profit</button>
+            </div>
+            <div id="profitsContent" class="section-content">
+            <div class="profit-summary">
+                <div class="summary-item">
+                    <span>Total Profits:</span>
+                    <strong id="totalProfits">₦0.00</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Tithe (10%):</span>
+                    <strong id="totalTithe">₦0.00</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Other (10%):</span>
+                    <strong id="totalOther">₦0.00</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Total Set Aside (20%):</span>
+                    <strong id="totalSetAside" style="color: var(--warning);">₦0.00</strong>
+                </div>
+            </div>
+            <div id="profitsList" class="profits-list"></div>
+            </div>
+        </section>
+
+        <!-- Debts Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 onclick="toggleSection('debts')" style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                    <span id="debtsToggleIcon">▼</span>
+                    📋 Debts & Bills
+                </h2>
+                <button class="btn-primary" onclick="addDebt()">+ Add Debt</button>
+            </div>
+            <div id="debtsContent" class="section-content">
+            <div id="debtsList" class="debts-list"></div>
+            <div id="debtsTotal" class="profit-summary" style="display: none; margin-top: 1rem;">
+                <div class="summary-item">
+                    <span>Total Debts & Bills:</span>
+                    <strong id="totalDebts" style="color: var(--danger);">₦0.00</strong>
+                </div>
+            </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal for Add/Subtract Money -->
+    <div id="moneyModal" class="modal">
+        <div class="modal-content">
+            <h3 id="moneyModalTitle">Add Money</h3>
+            <input type="number" id="moneyInput" placeholder="Enter amount" min="0" step="0.01">
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeMoneyModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmMoneyAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Add Account -->
+    <div id="addAccountModal" class="modal">
+        <div class="modal-content">
+            <h3>Add New Account</h3>
+            <input type="text" id="accountName" placeholder="Account name (e.g., Cash 2, Bank GTB)" required>
+            <label>Choose an icon:</label>
+            <div class="icon-picker" id="iconPicker">
+                <button type="button" class="icon-option selected" data-icon="💰">💰</button>
+                <button type="button" class="icon-option" data-icon="🏦">🏦</button>
+                <button type="button" class="icon-option" data-icon="💵">💵</button>
+                <button type="button" class="icon-option" data-icon="💳">💳</button>
+                <button type="button" class="icon-option" data-icon="🔒">🔒</button>
+                <button type="button" class="icon-option" data-icon="🔐">🔐</button>
+                <button type="button" class="icon-option" data-icon="💎">💎</button>
+                <button type="button" class="icon-option" data-icon="🏠">🏠</button>
+                <button type="button" class="icon-option" data-icon="🚗">🚗</button>
+                <button type="button" class="icon-option" data-icon="📱">📱</button>
+                <button type="button" class="icon-option" data-icon="🎯">🎯</button>
+                <button type="button" class="icon-option" data-icon="⭐">⭐</button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeAddAccountModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmAddAccount()">Add Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Add Profit -->
+    <div id="profitModal" class="modal">
+        <div class="modal-content">
+            <h3>Add Weekly Profit</h3>
+            <input type="text" id="profitDescription" placeholder="Description (optional)">
+            <input type="number" id="profitAmount" placeholder="Amount" min="0" step="0.01">
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeProfitModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmAddProfit()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Mark Profit Paid -->
+    <div id="markProfitPaidModal" class="modal">
+        <div class="modal-content">
+            <h3>Mark Profit as Paid</h3>
+            <p id="markProfitDescription"></p>
+            <div class="profit-summary">
+                <div class="summary-item">
+                    <span>Profit Amount:</span>
+                    <strong id="markProfitAmount"></strong>
+                </div>
+                <div class="summary-item">
+                    <span>Tithe (10%):</span>
+                    <strong id="markProfitTithe"></strong>
+                </div>
+            </div>
+            <div class="account-choice">
+                <label>Add profit to which account(s)?</label>
+                <div class="account-splits" id="profitAccountSplits">
+                    <div class="split-row">
+                        <select class="account-select">
+                            <option value="bank">Bank</option>
+                            <option value="cash">Cash</option>
+                            <option value="savings1">Savings 1</option>
+                            <option value="savings2">Savings 2</option>
+                        </select>
+                        <input type="number" class="split-amount" placeholder="Amount" min="0" step="0.01">
+                        <button class="btn-icon-small" onclick="removeProfitSplit(this)" style="display: none;">×</button>
+                    </div>
+                </div>
+                <button class="btn-secondary btn-small" onclick="addProfitSplit()" style="margin-top: 8px;">+ Split Between Accounts</button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeMarkProfitPaidModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmMarkProfitPaid()">Mark as Paid</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Add Debt -->
+    <div id="debtModal" class="modal">
+        <div class="modal-content">
+            <h3>Add Debt/Bill</h3>
+            <input type="text" id="debtDescription" placeholder="Description (e.g., Store XYZ)" required>
+            <input type="number" id="debtAmount" placeholder="Amount owed" min="0" step="0.01" required>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeDebtModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmAddDebt()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Pay Debt -->
+    <div id="payDebtModal" class="modal">
+        <div class="modal-content">
+            <h3 id="payDebtTitle">Pay Debt</h3>
+            <p id="payDebtDescription"></p>
+            <div class="payment-options">
+                <div class="payment-option">
+                    <label>
+                        <input type="radio" name="paymentType" value="full" checked>
+                        Pay in Full (<span id="payFullAmount"></span>)
+                    </label>
+                </div>
+                <div class="payment-option">
+                    <label>
+                        <input type="radio" name="paymentType" value="partial">
+                        Partial Payment
+                    </label>
+                    <input type="number" id="partialAmount" placeholder="Enter amount" min="0" step="0.01" disabled>
+                </div>
+            </div>
+            <div class="account-choice">
+                <label>Pay from which account?</label>
+                <div class="account-splits" id="accountSplits">
+                    <div class="split-row">
+                        <select class="account-select">
+                            <option value="bank">Bank</option>
+                            <option value="cash">Cash</option>
+                            <option value="savings1">Savings 1</option>
+                            <option value="savings2">Savings 2</option>
+                        </select>
+                        <input type="number" class="split-amount" placeholder="Amount" min="0" step="0.01">
+                        <button class="btn-icon-small" onclick="removeSplit(this)" style="display: none;">×</button>
+                    </div>
+                </div>
+                <button class="btn-secondary btn-small" onclick="addSplit()" style="margin-top: 8px;">+ Split Payment</button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closePayDebtModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmPayDebt()">Pay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share/Import Modal -->
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <h3>Export / Import Data</h3>
+            <div class="share-section">
+                <button class="btn-primary btn-full" onclick="exportData()">📥 Download Data (JSON)</button>
+            </div>
+            <div class="share-divider">OR</div>
+            <div class="share-section">
+                <label class="btn-secondary btn-full" for="importFile">
+                    📤 Import Data from File
+                </label>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+            </div>
+            <div class="share-divider"></div>
+            <div class="share-section">
+                <button class="btn-danger btn-full" onclick="resetAllData()">🗑️ Reset All Data</button>
+                <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.5rem; text-align: center;">
+                    This will delete all accounts, profits, and debts
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeShareModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Pay Obligation -->
+    <div id="payObligationModal" class="modal">
+        <div class="modal-content">
+            <h3 id="payObligationTitle">Pay Tithe</h3>
+            <p id="payObligationDescription"></p>
+            <div class="account-choice">
+                <label>Pay from which account(s)?</label>
+                <div class="account-splits" id="obligationAccountSplits">
+                    <div class="split-row">
+                        <select class="account-select">
+                            <option value="bank">Bank</option>
+                        </select>
+                        <input type="number" class="split-amount" placeholder="Amount" min="0" step="0.01">
+                        <button class="btn-icon-small" onclick="removeObligationSplit(this)" style="display: none;">×</button>
+                    </div>
+                </div>
+                <button class="btn-secondary btn-small" onclick="addObligationSplit()" style="margin-top: 8px;">+ Split Payment</button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closePayObligationModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmPayObligation()">Pay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Edit Obligation -->
+    <div id="editObligationModal" class="modal">
+        <div class="modal-content">
+            <h3 id="editObligationTitle">Edit Tithe Amount</h3>
+            <p style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 1rem;">
+                Current amount: <strong id="currentObligationAmount">₦0.00</strong>
+            </p>
+            <input type="number" id="editObligationInput" placeholder="Enter new amount" min="0" step="0.01">
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeEditObligationModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmEditObligation()">Update</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
