@@ -1,0 +1,12 @@
+{
+  "name": "financial-life",
+  "version": "1.0.0",
+  "description": "Financial Life Tracker - Personal finance management PWA",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "build": "echo 'No build needed - static site'"
+  },
+  "keywords": ["finance", "tracker", "pwa"],
+  "author": "",
+  "license": "MIT"
+}

@@ -1,0 +1,5 @@
+.git
+node_modules
+*.mdgit a
+!README.md
+create-icons.html
