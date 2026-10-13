@@ -1,154 +1,248 @@
-# 💰 Finance Tracker
+# 💰 Financial Life Tracker
 
-A mobile-first Progressive Web App (PWA) to track your finances, bills, debts, and weekly profits.
+A mobile-first Progressive Web App (PWA) for tracking your complete financial portfolio - accounts, profits, debts, tithe, and seed obligations.
 
-## Features
+![Financial Life Tracker](./public/favicon.png)
 
-✅ **Account Management**
-- Track multiple accounts: Bank, Cash, and 2 Savings accounts
-- Add or subtract money from any account
-- Real-time total overview
+## 🌟 Features
 
-✅ **Weekly Profits Tracking**
-- Record all your weekly profits
-- Automatic 10% tithe calculation
-- Mark profits as paid and choose which account to add them to
+### 💳 Account Management
+- Track unlimited custom accounts (Bank, Cash, Savings, etc.)
+- Choose custom names and icons for each account
+- Add or subtract money with simple +/- buttons
+- Real-time total balance overview
+- Delete accounts you no longer need
+- Accounts automatically appear in all payment dropdowns
 
-✅ **Debt & Bills Tracking**
-- Track all your debts and unpaid bills
-- Flexible payment options: full or partial payments
+### 📈 Profit Tracking
+- Log weekly/monthly profits with descriptions
+- Automatic 20% obligation calculation:
+  - 10% for Tithe 🙏
+  - 10% for Seed 🌱
+- Mark profits as paid and choose destination account(s)
+- Split profit payments across multiple accounts
+- View profit history with payment status
+- Collapsible section to reduce scrolling
+
+### 💸 Tithe & Seed Management
+- **Sliding sidebar panel** to track obligations separately
+- Obligations automatically accumulate as you add profits
+- **Editable amounts** - Add your existing tithe/seed balances
+- Pay obligations when ready from any account(s)
 - Split payments across multiple accounts
-- Choose exactly where to debit from
+- Visual indicator (red button) when obligations pending
+- Independent tracking for Tithe and Seed
 
-✅ **Data Management**
-- All data stored locally in your browser (localStorage)
-- Export your data as JSON file
-- Import data on another device
+### 📋 Debt & Bills Tracking
+- Track all debts and unpaid bills
+- Full or partial payment options
+- Split payments across multiple accounts
+- Choose exactly which account(s) to debit from
+- Total debts summary
+- Collapsible section
+
+### 📊 Financial Overview
+- **Total Available**: Sum of all account balances
+- **After Bills & Tithe** (in red): Shows true available money after pending obligations
+  - Formula: `Total - Debts - Tithe - Seed`
+  - Only displays when you have pending obligations
+
+### 💾 Data Management
+- All data stored locally in browser (localStorage)
+- **Export**: Download complete backup as JSON file
+- **Import**: Restore data on another device
+- **Reset**: Clear all data and start fresh
 - No internet required after installation
+- Your data never leaves your device
 
-✅ **Mobile Optimized**
-- Responsive design that works perfectly on phones
-- Touch-friendly buttons (minimum 44px)
-- Dark mode support
-- Can be installed as a PWA on your home screen
+### 📱 Mobile-First Design
+- Responsive layout optimized for phones
+- Touch-friendly buttons (44px minimum)
+- Smooth animations and transitions
+- Dark mode support (auto-detects system preference)
+- Installable as PWA on mobile home screen
+- Works offline after installation
 
-## Installation
+## 🚀 Quick Start
 
-### Desktop/Laptop
-1. Open `index.html` in a web browser
-2. The app works immediately - no installation needed!
+### Desktop/Browser
+1. Open `index.html` in any modern web browser
+2. Start tracking your finances immediately!
 
 ### Mobile (PWA Installation)
-1. First, generate the app icons:
-   - Open `create-icons.html` in a browser
-   - Click the download buttons to save icon-192.png and icon-512.png
-   - Place these files in the same folder as index.html
+1. Open the app in your mobile browser
+2. Look for "Add to Home Screen" or "Install App"
+3. The app icon will appear on your home screen
+4. Launch like a native app - works offline!
 
-2. Host the files on a web server (or use a local server)
-   - Option 1: Upload to any web hosting service
-   - Option 2: Run a local server (see below)
+## 📖 How To Use
 
-3. Open the app in your mobile browser
-4. Look for "Add to Home Screen" or "Install App" option
-5. The app will work offline after installation!
+### Setting Up Accounts
+1. The app starts with 4 default accounts (Bank, Cash, Savings 1, Savings 2)
+2. Click **"+ Add Account"** to create custom accounts
+3. Choose a name and icon for each account
+4. Add starting balances using the **+** button
 
-### Running a Local Server
+### Tracking Profits
+1. Click **"+ Add Profit"** in the profits section
+2. Enter description and amount
+3. Tithe (10%) and Seed (10%) are automatically tracked in the sidebar
+4. When ready, click **"Mark Paid"** to add the profit to your accounts
 
-#### Using Python:
-```bash
-# Python 3
-python -m http.server 8000
-
-# Python 2
-python -m SimpleHTTPServer 8000
-```
-
-#### Using Node.js:
-```bash
-npx http-server
-```
-
-Then open `http://localhost:8000` in your browser.
-
-## Usage Guide
-
-### Managing Accounts
-- Click the **+** button to add money to an account
-- Click the **-** button to subtract money from an account
-- Your total balance updates automatically
-
-### Adding Profits
-1. Click **+ Add Profit** in the profits section
-2. Enter a description (optional) and amount
-3. Check "Mark as paid" if you want to immediately add it to an account
-4. Choose which account receives the profit
-5. The app automatically calculates 10% tithe
+### Managing Tithe & Seed
+1. Click the **◀** arrow on the right to open the obligations sidebar
+2. **Edit amounts** if you have existing tithe/seed to add
+3. Obligations automatically accumulate as you add profits
+4. Click **"Pay Tithe"** or **"Pay Seed"** when ready
+5. Choose which account(s) to pay from
+6. Obligation is cleared after payment
 
 ### Tracking Debts
-1. Click **+ Add Debt** in the debts section
-2. Enter who you owe (e.g., "Store XYZ") and the amount
-3. When ready to pay, click **Pay**
+1. Click **"+ Add Debt"** in the debts section
+2. Enter description (e.g., "Store XYZ") and amount
+3. Click **"Pay"** when ready to settle
 4. Choose full or partial payment
 5. Select which account(s) to pay from
-6. You can split payment across multiple accounts!
+6. Split payments across multiple accounts if needed
 
 ### Exporting/Importing Data
 1. Click the **📤** button in the header
-2. **Export**: Download your data as a JSON file
-3. **Import**: Upload a previously exported JSON file
-4. Perfect for switching between phone and desktop!
+2. **Download Data (JSON)**: Export complete backup
+3. **Import Data from File**: Restore from backup
+4. Perfect for switching between phone and desktop
+5. **Reset All Data**: Clear everything and start fresh
 
-## Technical Details
+## 💡 Pro Tips
 
-- **Pure HTML/CSS/JavaScript** - No frameworks needed
-- **LocalStorage API** - Data persists in browser
-- **PWA Ready** - Installable and works offline
-- **Mobile-First Design** - Optimized for touch screens
-- **No Backend Required** - Everything runs in your browser
+### Workflow Optimization
+- **Collapse sections** by clicking the section heading to reduce scrolling
+- Keep profits collapsed after adding to quickly access debts
+- Use the obligations sidebar to see pending tithe/seed at a glance
 
-## Browser Support
+### Financial Planning
+- Check "After Bills & Tithe" (red amount) to see your true available balance
+- Export data regularly as backup
+- Edit obligation amounts to add your existing tithe/seed balances
+- Split payments strategically across accounts
 
-Works in all modern browsers:
-- Chrome/Edge (recommended for PWA installation)
-- Firefox
-- Safari
-- Opera
+### Organization
+- Create accounts for different purposes (Emergency Fund, Vacation, etc.)
+- Use descriptive profit descriptions for better tracking
+- Mark profits as paid to keep your accounts updated
 
-## Data Privacy
+## 🎨 Customization
 
-🔒 **100% Private**
-- All data stays on YOUR device
-- No data sent to any server
-- No tracking or analytics
-- No account registration needed
+### Account Icons Available
+💰 💵 💳 🏦 🔒 🔐 💎 🏠 🚗 📱 🎯 ⭐
 
-## Files Structure
+### Color Scheme
+- Primary Blue: Actions and highlights
+- Success Green: Positive actions (add money, pay)
+- Danger Red: Negative actions (subtract, delete)
+- Warning Orange: Obligations and important info
+- Supports system dark mode
 
+## 🔒 Privacy & Security
+
+- ✅ **100% Private** - All data stays on YOUR device
+- ✅ **No Server** - No data sent anywhere
+- ✅ **No Tracking** - No analytics or monitoring
+- ✅ **No Account** - No registration required
+- ✅ **Offline First** - Works without internet
+
+## 🛠️ Technical Details
+
+### Built With
+- Pure HTML5, CSS3, JavaScript (ES6+)
+- No frameworks or dependencies
+- Progressive Web App (PWA) capabilities
+- Service Worker for offline functionality
+- LocalStorage for data persistence
+
+### Browser Support
+- ✅ Chrome/Edge (recommended for PWA)
+- ✅ Firefox
+- ✅ Safari
+- ✅ Opera
+- ✅ Any modern mobile browser
+
+### File Structure
 ```
 financial-life/
-├── index.html          # Main HTML structure
-├── style.css           # Styles and responsive design
-├── app.js              # Core functionality
-├── manifest.json       # PWA configuration
-├── sw.js              # Service worker for offline support
-├── create-icons.html   # Icon generator utility
-├── icon-192.png       # PWA icon (small)
-├── icon-512.png       # PWA icon (large)
-└── README.md          # This file
+├── index.html              # Main app structure
+├── style.css              # Styles and responsive design
+├── app.js                 # Core functionality
+├── manifest.json          # PWA configuration
+├── sw.js                  # Service worker for offline
+├── public/
+│   └── favicon.png        # App icon
+├── create-icons.html      # Icon generator utility
+├── README.md              # This file
+├── UPDATES.md             # Feature changelog
+└── TITHE-SEED-FEATURE.md  # Tithe/Seed documentation
 ```
 
-## Tips
+## 📋 Features Roadmap
 
-💡 **Best Practices:**
-- Export your data regularly as backup
-- Use the split payment feature for complex transactions
-- Check your tithe calculations weekly
-- Install as PWA for the best mobile experience
+### Current Features ✅
+- ✅ Custom accounts with icons
+- ✅ Profit tracking with auto-calculation
+- ✅ Tithe & Seed sidebar panel
+- ✅ Debt management with split payments
+- ✅ Collapsible sections
+- ✅ Export/Import/Reset
+- ✅ PWA support
+- ✅ Dark mode
 
-## License
+### Potential Future Features
+- 📅 Date range filtering for profits
+- 📊 Charts and graphs
+- 🏷️ Categories for expenses
+- 📝 Notes/descriptions for transactions
+- 🔍 Search functionality
+- 📈 Financial reports
+
+## 🐛 Troubleshooting
+
+### Data Not Saving
+- Check if localStorage is enabled in browser
+- Try exporting and importing data
+- Clear browser cache and try again
+
+### PWA Not Installing
+- Must be accessed via HTTPS (or localhost)
+- Ensure manifest.json and icons are accessible
+- Try different browser (Chrome recommended)
+
+### Calculations Seem Wrong
+- Check pending tithe/seed in sidebar
+- Verify all account balances
+- Export data to review all transactions
+
+## 📄 License
 
 Free to use and modify for personal use.
 
+## 🤝 Contributing
+
+This is a personal finance tracker. Feel free to fork and customize for your needs!
+
+## 📞 Support
+
+- Check the documentation files (UPDATES.md, TITHE-SEED-FEATURE.md)
+- Review this README for usage instructions
+- All features work offline - no external dependencies
+
+## 🙏 Acknowledgments
+
+Built with a focus on:
+- Simplicity and ease of use
+- Privacy and data ownership
+- Mobile-first experience
+- Biblical financial stewardship principles
+
 ---
 
-Built with ❤️ for simple, effective financial tracking
+**Track your finances. Honor your commitments. Build your future.** 💰🙏🌱
+
+Made with ❤️ for effective personal finance management

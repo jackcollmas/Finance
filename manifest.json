@@ -1,7 +1,7 @@
 {
-  "name": "Finance Tracker",
+  "name": "Financial Life Tracker",
   "short_name": "FinLife",
-  "description": "Track your finances, bills, debts, and weekly profits",
+  "description": "Track your finances, bills, debts, and weekly profits with tithe management",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#2563eb",
@@ -9,13 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "public/favicon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "public/favicon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
