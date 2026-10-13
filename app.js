@@ -22,6 +22,7 @@ let currentDebtId = null;
 let currentProfitId = null;
 let selectedIcon = '💰';
 let currentObligation = null; // 'tithe' or 'seed'
+let confirmAction = null; // Store the function to execute after confirmation
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -346,21 +347,25 @@ function deleteAccount(accountKey) {
     const meta = state.accountsMeta[accountKey];
     const balance = state.accounts[accountKey];
     
-    if (balance !== 0) {
-        if (!confirm(`"${meta.name}" has a balance of ${formatCurrency(balance)}. Delete anyway?`)) {
-            return;
+    const message = balance !== 0 
+        ? `"${meta.name}" has a balance of ${formatCurrency(balance)}.`
+        : `Delete "${meta.name}"?`;
+    
+    const warning = balance !== 0 
+        ? 'This account has a balance. Deleting it will remove this amount from your total.'
+        : '';
+    
+    showConfirmModal(
+        'Delete Account',
+        message,
+        warning,
+        () => {
+            delete state.accounts[accountKey];
+            delete state.accountsMeta[accountKey];
+            saveState();
+            render();
         }
-    } else {
-        if (!confirm(`Delete "${meta.name}"?`)) {
-            return;
-        }
-    }
-
-    delete state.accounts[accountKey];
-    delete state.accountsMeta[accountKey];
-
-    saveState();
-    render();
+    );
 }
 
 function addMoney(account) {
@@ -393,9 +398,20 @@ function confirmMoneyAction() {
         state.accounts[currentAction.account] += amount;
     } else {
         if (state.accounts[currentAction.account] < amount) {
-            if (!confirm('This will result in a negative balance. Continue?')) {
-                return;
-            }
+            const accountName = state.accountsMeta[currentAction.account]?.name || currentAction.account;
+            showConfirmModal(
+                'Insufficient Funds',
+                `${accountName} has ${formatCurrency(state.accounts[currentAction.account])} but you're trying to subtract ${formatCurrency(amount)}.`,
+                'This will result in a negative balance. Continue anyway?',
+                () => {
+                    state.accounts[currentAction.account] -= amount;
+                    saveState();
+                    render();
+                    closeMoneyModal();
+                },
+                'Continue'
+            );
+            return;
         }
         state.accounts[currentAction.account] -= amount;
     }
@@ -548,11 +564,20 @@ function confirmMarkProfitPaid() {
 }
 
 function deleteProfit(profitId) {
-    if (!confirm('Delete this profit entry?')) return;
+    const profit = state.profits.find(p => p.id === profitId);
+    const tithe = profit.amount * 0.1;
+    const seed = profit.amount * 0.1;
     
-    state.profits = state.profits.filter(p => p.id !== profitId);
-    saveState();
-    render();
+    showConfirmModal(
+        'Delete Profit Entry',
+        `Delete "${profit.description || 'Profit'}" (${formatCurrency(profit.amount)})?`,
+        '',
+        () => {
+            state.profits = state.profits.filter(p => p.id !== profitId);
+            saveState();
+            render();
+        }
+    );
 }
 
 // Debt Management
@@ -731,11 +756,18 @@ function confirmPayDebt() {
 }
 
 function deleteDebt(debtId) {
-    if (!confirm('Delete this debt?')) return;
+    const debt = state.debts.find(d => d.id === debtId);
     
-    state.debts = state.debts.filter(d => d.id !== debtId);
-    saveState();
-    render();
+    showConfirmModal(
+        'Delete Debt',
+        `Delete "${debt.description}" (${formatCurrency(debt.amount)})?`,
+        '',
+        () => {
+            state.debts = state.debts.filter(d => d.id !== debtId);
+            saveState();
+            render();
+        }
+    );
 }
 
 // Export/Import
@@ -757,26 +789,25 @@ function exportData() {
 }
 
 function resetAllData() {
-    if (!confirm('⚠️ WARNING: This will delete ALL data including accounts, profits, and debts.\n\nThis action cannot be undone!\n\nAre you sure?')) {
-        return;
-    }
-    
-    if (!confirm('Last chance! Click OK to permanently delete everything.')) {
-        return;
-    }
-    
-    localStorage.removeItem('financialLifeData');
-    state = {
-        accounts: {},
-        accountsMeta: {},
-        profits: [],
-        debts: [],
-        obligations: { tithe: 0, seed: 0 }
-    };
-    initializeDefaultAccounts();
-    render();
-    closeShareModal();
-    alert('✅ All data has been reset. Default accounts have been created.');
+    showConfirmModal(
+        '⚠️ Reset All Data',
+        'This will permanently delete ALL your data including accounts, profits, debts, tithe, and seed.',
+        'This action cannot be undone! Are you absolutely sure?',
+        () => {
+            localStorage.removeItem('financialLifeData');
+            state = {
+                accounts: {},
+                accountsMeta: {},
+                profits: [],
+                debts: [],
+                obligations: { tithe: 0, seed: 0 }
+            };
+            initializeDefaultAccounts();
+            render();
+            closeShareModal();
+        },
+        'Reset Everything'
+    );
 }
 
 function importData(event) {
@@ -1019,6 +1050,30 @@ function closeEditObligationModal() {
 function closePayObligationModal() {
     closeAllModals();
     currentObligation = null;
+}
+
+// Confirmation Modal
+function showConfirmModal(title, message, warning, onConfirm, buttonText = 'Delete') {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmWarning').textContent = warning;
+    document.getElementById('confirmButton').textContent = buttonText;
+    
+    confirmAction = onConfirm;
+    showModal('confirmModal');
+}
+
+function executeConfirmAction() {
+    if (confirmAction) {
+        confirmAction();
+        confirmAction = null;
+    }
+    closeConfirmModal();
+}
+
+function closeConfirmModal() {
+    closeAllModals();
+    confirmAction = null;
 }
 
 // Utility functions

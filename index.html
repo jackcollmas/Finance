@@ -346,6 +346,19 @@
         </div>
     </div>
 
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h3 id="confirmTitle">Confirm Action</h3>
+            <p id="confirmMessage" style="margin: 1rem 0; color: var(--text);"></p>
+            <p id="confirmWarning" style="font-size: 0.875rem; color: var(--danger); margin-bottom: 1rem;"></p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+                <button class="btn-danger" id="confirmButton" onclick="executeConfirmAction()">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>
