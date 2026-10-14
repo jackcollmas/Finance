@@ -6,10 +6,13 @@ let state = {
     accountsMeta: {}, // Store account names and icons
     profits: [],
     debts: [],
+    spendings: [],
     obligations: {
         tithe: 0,
         seed: 0
-    }
+    },
+    calcHistory: [],
+    transactions: []
 };
 
 // Current action tracking
@@ -23,6 +26,14 @@ let currentProfitId = null;
 let selectedIcon = '💰';
 let currentObligation = null; // 'tithe' or 'seed'
 let confirmAction = null; // Store the function to execute after confirmation
+let currentSpendingId = null;
+
+// Calculator state
+let calcCurrent = '0';
+let calcPrevious = null;
+let calcOperator = null;
+let calcNewNumber = true;
+let currentTransactionFilter = 'all';
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -163,6 +174,7 @@ function loadState() {
 function render() {
     renderAccounts();
     renderProfits();
+    renderSpendings();
     renderDebts();
     renderTotal();
     renderObligations();
@@ -307,6 +319,215 @@ function renderDebts() {
         document.getElementById('totalDebts').textContent = formatCurrency(totalDebts);
         document.getElementById('debtsTotal').style.display = 'block';
     }
+}
+
+// Spending Tracker
+function renderSpendings() {
+    const spendingsList = document.getElementById('spendingsList');
+    
+    if (!state.spendings || state.spendings.length === 0) {
+        spendingsList.innerHTML = '<div class="empty-state">No spending recorded yet</div>';
+        document.getElementById('spendingsTotal').style.display = 'none';
+    } else {
+        spendingsList.innerHTML = state.spendings.map(spending => {
+            const isPending = !spending.paid;
+            return `
+            <div class="spending-item ${isPending ? 'pending-spending' : ''}">
+                <div class="spending-header">
+                    <div class="spending-info">
+                        <h4>${spending.description}</h4>
+                        <div class="spending-details">
+                            <span class="spending-amount">${formatCurrency(spending.amount)}</span>
+                            ${spending.account ? 
+                                `<span class="spending-from">from ${getAccountName(spending.account)}</span>` :
+                                `<span class="spending-pending">⏳ Not assigned</span>`
+                            }
+                        </div>
+                        <div class="spending-date">${formatDate(spending.date)}</div>
+                    </div>
+                    <div class="spending-actions">
+                        ${isPending ? 
+                            `<button class="btn-small btn-success" onclick="assignSpendingAccount('${spending.id}')">Assign</button>` : 
+                            ''
+                        }
+                        <button class="btn-small btn-danger" onclick="deleteSpending('${spending.id}')">Delete</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        }).join('');
+        
+        // Show total spending (only paid ones)
+        const totalSpending = state.spendings
+            .filter(s => s.paid)
+            .reduce((sum, s) => sum + s.amount, 0);
+        const pendingSpending = state.spendings
+            .filter(s => !s.paid)
+            .reduce((sum, s) => sum + s.amount, 0);
+            
+        document.getElementById('totalSpending').textContent = formatCurrency(totalSpending);
+        
+        if (pendingSpending > 0) {
+            document.getElementById('pendingSpending').textContent = formatCurrency(pendingSpending);
+            document.getElementById('pendingSpendingRow').style.display = 'flex';
+        } else {
+            document.getElementById('pendingSpendingRow').style.display = 'none';
+        }
+        
+        document.getElementById('spendingsTotal').style.display = 'block';
+    }
+}
+
+function assignSpendingAccount(spendingId) {
+    const spending = state.spendings.find(s => s.id === spendingId);
+    if (!spending) return;
+    
+    document.getElementById('assignSpendingDescription').textContent = `"${spending.description}" - ${formatCurrency(spending.amount)}`;
+    
+    const select = document.getElementById('assignSpendingAccountSelect');
+    select.innerHTML = generateAccountSelect();
+    
+    currentSpendingId = spendingId;
+    showModal('assignSpendingModal');
+}
+
+function confirmAssignSpending() {
+    const spending = state.spendings.find(s => s.id === currentSpendingId);
+    if (!spending) return;
+    
+    const account = document.getElementById('assignSpendingAccountSelect').value;
+    
+    // Check if account has sufficient funds
+    if (state.accounts[account] < spending.amount) {
+        const accountName = getAccountName(account);
+        showConfirmModal(
+            'Insufficient Funds',
+            `${accountName} has ${formatCurrency(state.accounts[account])} but you're assigning ${formatCurrency(spending.amount)}.`,
+            'Continue anyway?',
+            () => {
+                spending.account = account;
+                spending.paid = true;
+                state.accounts[account] -= spending.amount;
+                saveState();
+                render();
+                closeAssignSpendingModal();
+            },
+            'Continue'
+        );
+        return;
+    }
+    
+    spending.account = account;
+    spending.paid = true;
+    state.accounts[account] -= spending.amount;
+    
+    saveState();
+    render();
+    closeAssignSpendingModal();
+}
+
+function closeAssignSpendingModal() {
+    closeAllModals();
+    currentSpendingId = null;
+}
+
+function addSpending() {
+    document.getElementById('spendingDescription').value = '';
+    document.getElementById('spendingAmount').value = '';
+    document.getElementById('spendingAccountCheck').checked = false;
+    document.getElementById('spendingAccountSelectDiv').style.display = 'none';
+    
+    // Populate account select
+    const select = document.getElementById('spendingAccountSelect');
+    select.innerHTML = generateAccountSelect();
+    
+    showModal('spendingModal');
+    setTimeout(() => document.getElementById('spendingDescription').focus(), 100);
+}
+
+function confirmAddSpending() {
+    const description = document.getElementById('spendingDescription').value.trim();
+    const amount = parseFloat(document.getElementById('spendingAmount').value);
+    const assignNow = document.getElementById('spendingAccountCheck').checked;
+    const account = assignNow ? document.getElementById('spendingAccountSelect').value : null;
+
+    if (!description) {
+        alert('Please enter a description');
+        return;
+    }
+
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+    }
+
+    // If assigning now, check if account has sufficient funds
+    if (assignNow && state.accounts[account] < amount) {
+        const accountName = getAccountName(account);
+        showConfirmModal(
+            'Insufficient Funds',
+            `${accountName} has ${formatCurrency(state.accounts[account])} but you're spending ${formatCurrency(amount)}.`,
+            'Continue anyway?',
+            () => {
+                recordSpending(description, amount, account);
+            },
+            'Continue'
+        );
+        return;
+    }
+
+    recordSpending(description, amount, account);
+}
+
+function recordSpending(description, amount, account) {
+    const spending = {
+        id: generateId(),
+        description: description,
+        amount: amount,
+        account: account,
+        paid: account !== null,
+        date: new Date().toISOString()
+    };
+
+    if (!state.spendings) {
+        state.spendings = [];
+    }
+
+    state.spendings.push(spending);
+    
+    // Only debit if account is assigned
+    if (account) {
+        state.accounts[account] -= amount;
+    }
+
+    saveState();
+    render();
+    closeSpendingModal();
+}
+
+function deleteSpending(spendingId) {
+    const spending = state.spendings.find(s => s.id === spendingId);
+    
+    showConfirmModal(
+        'Delete Spending',
+        `Delete "${spending.description}" (${formatCurrency(spending.amount)})?`,
+        '',
+        () => {
+            state.spendings = state.spendings.filter(s => s.id !== spendingId);
+            saveState();
+            render();
+        }
+    );
+}
+
+function closeSpendingModal() {
+    closeAllModals();
+}
+
+function toggleSpendingAccountSelect() {
+    const checkbox = document.getElementById('spendingAccountCheck');
+    const div = document.getElementById('spendingAccountSelectDiv');
+    div.style.display = checkbox.checked ? 'block' : 'none';
 }
 
 // Account Management
@@ -741,6 +962,8 @@ function confirmPayDebt() {
     // Process payment
     splits.forEach(split => {
         state.accounts[split.account] -= split.amount;
+        // Log transaction for each split
+        logTransaction('debt_payment', debt.description, split.amount, getAccountName(split.account));
     });
 
     // Update or remove debt
@@ -791,7 +1014,7 @@ function exportData() {
 function resetAllData() {
     showConfirmModal(
         '⚠️ Reset All Data',
-        'This will permanently delete ALL your data including accounts, profits, debts, tithe, and seed.',
+        'This will permanently delete ALL your data including accounts, profits, debts, spending, tithe, and seed.',
         'This action cannot be undone! Are you absolutely sure?',
         () => {
             localStorage.removeItem('financialLifeData');
@@ -800,6 +1023,7 @@ function resetAllData() {
                 accountsMeta: {},
                 profits: [],
                 debts: [],
+                spendings: [],
                 obligations: { tithe: 0, seed: 0 }
             };
             initializeDefaultAccounts();
@@ -1076,9 +1300,276 @@ function closeConfirmModal() {
     confirmAction = null;
 }
 
+// Calculator Functions
+function openCalculator() {
+    renderCalcHistory();
+    showModal('calculatorModal');
+}
+
+function closeCalculator() {
+    closeAllModals();
+}
+
+function numberCalc(num) {
+    if (calcNewNumber) {
+        calcCurrent = num;
+        calcNewNumber = false;
+    } else {
+        calcCurrent = calcCurrent === '0' ? num : calcCurrent + num;
+    }
+    updateCalcDisplay();
+}
+
+function operatorCalc(op) {
+    if (calcOperator && !calcNewNumber) {
+        equalsCalc();
+    }
+    calcPrevious = calcCurrent;
+    calcOperator = op;
+    calcNewNumber = true;
+}
+
+function equalsCalc() {
+    if (!calcOperator || !calcPrevious) return;
+    
+    const prev = parseFloat(calcPrevious);
+    const curr = parseFloat(calcCurrent);
+    let result;
+    
+    switch (calcOperator) {
+        case '+': result = prev + curr; break;
+        case '-': result = prev - curr; break;
+        case '*': result = prev * curr; break;
+        case '/': result = prev / curr; break;
+        default: return;
+    }
+    
+    // Save to history
+    const calculation = {
+        expression: `${prev} ${getOperatorSymbol(calcOperator)} ${curr}`,
+        result: result,
+        timestamp: new Date().toISOString()
+    };
+    
+    if (!state.calcHistory) state.calcHistory = [];
+    state.calcHistory.unshift(calculation);
+    if (state.calcHistory.length > 10) state.calcHistory.pop();
+    
+    saveState();
+    renderCalcHistory();
+    
+    calcCurrent = result.toString();
+    calcPrevious = null;
+    calcOperator = null;
+    calcNewNumber = true;
+    updateCalcDisplay();
+}
+
+function clearCalc() {
+    calcCurrent = '0';
+    calcPrevious = null;
+    calcOperator = null;
+    calcNewNumber = true;
+    updateCalcDisplay();
+}
+
+function deleteCalc() {
+    if (calcCurrent.length > 1) {
+        calcCurrent = calcCurrent.slice(0, -1);
+    } else {
+        calcCurrent = '0';
+    }
+    updateCalcDisplay();
+}
+
+function percentCalc() {
+    calcCurrent = (parseFloat(calcCurrent) / 100).toString();
+    updateCalcDisplay();
+}
+
+function updateCalcDisplay() {
+    const display = document.getElementById('calcDisplay');
+    display.textContent = calcCurrent;
+}
+
+function getOperatorSymbol(op) {
+    const symbols = { '+': '+', '-': '−', '*': '×', '/': '÷' };
+    return symbols[op] || op;
+}
+
+function renderCalcHistory() {
+    const historyList = document.getElementById('calcHistoryList');
+    
+    if (!state.calcHistory || state.calcHistory.length === 0) {
+        historyList.innerHTML = '<div class="calc-history-empty">No calculations yet</div>';
+        return;
+    }
+    
+    historyList.innerHTML = state.calcHistory.map(calc => `
+        <div class="calc-history-item" onclick="useCalcResult('${calc.result}')">
+            <span class="calc-expression">${calc.expression}</span>
+            <span class="calc-result">= ${formatNumber(calc.result)}</span>
+        </div>
+    `).join('');
+}
+
+function useCalcResult(result) {
+    calcCurrent = result;
+    calcNewNumber = false;
+    updateCalcDisplay();
+}
+
+function formatNumber(num) {
+    const number = parseFloat(num);
+    return number % 1 === 0 ? number.toFixed(0) : number.toFixed(2);
+}
+
+// Recent Transactions Functions
+function openRecentTransactions() {
+    currentTransactionFilter = 'all';
+    renderRecentTransactions();
+    showModal('transactionsModal');
+}
+
+function closeRecentTransactions() {
+    closeAllModals();
+}
+
+function filterTransactions(filter) {
+    currentTransactionFilter = filter;
+    
+    // Update active button
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+    });
+    
+    renderRecentTransactions();
+}
+
+function renderRecentTransactions() {
+    const transactionsList = document.getElementById('transactionsList');
+    
+    // Gather all transactions
+    let transactions = [];
+    
+    // Add paid profits
+    if (state.profits) {
+        state.profits.filter(p => p.paid).forEach(p => {
+            transactions.push({
+                type: 'profit',
+                icon: '📈',
+                description: p.description || 'Profit',
+                amount: p.amount,
+                account: p.paidTo === 'multiple' ? 'Multiple' : getAccountName(p.paidTo),
+                date: p.date,
+                color: 'success'
+            });
+        });
+    }
+    
+    // Add assigned spendings
+    if (state.spendings) {
+        state.spendings.filter(s => s.paid).forEach(s => {
+            transactions.push({
+                type: 'spending',
+                icon: '💸',
+                description: s.description,
+                amount: -s.amount,
+                account: getAccountName(s.account),
+                date: s.date,
+                color: 'danger'
+            });
+        });
+    }
+    
+    // Add debt payments (track in state from now on)
+    if (state.transactions) {
+        state.transactions.forEach(t => {
+            if (t.type === 'debt_payment') {
+                transactions.push({
+                    type: 'debt',
+                    icon: '📋',
+                    description: t.description,
+                    amount: -t.amount,
+                    account: t.account,
+                    date: t.date,
+                    color: 'warning'
+                });
+            }
+        });
+    }
+    
+    // Filter by type
+    if (currentTransactionFilter !== 'all') {
+        if (currentTransactionFilter === 'profits') {
+            transactions = transactions.filter(t => t.type === 'profit');
+        } else if (currentTransactionFilter === 'spendings') {
+            transactions = transactions.filter(t => t.type === 'spending');
+        } else if (currentTransactionFilter === 'debts') {
+            transactions = transactions.filter(t => t.type === 'debt');
+        }
+    }
+    
+    // Sort by date (newest first) and limit to 20
+    transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    transactions = transactions.slice(0, 20);
+    
+    if (transactions.length === 0) {
+        transactionsList.innerHTML = '<div class="empty-state">No transactions found</div>';
+        return;
+    }
+    
+    transactionsList.innerHTML = transactions.map(t => `
+        <div class="transaction-item transaction-${t.color}">
+            <div class="transaction-icon">${t.icon}</div>
+            <div class="transaction-info">
+                <div class="transaction-desc">${t.description}</div>
+                <div class="transaction-account">${t.account}</div>
+            </div>
+            <div class="transaction-right">
+                <div class="transaction-amount ${t.amount > 0 ? 'positive' : 'negative'}">
+                    ${t.amount > 0 ? '+' : ''}${formatCurrency(Math.abs(t.amount))}
+                </div>
+                <div class="transaction-date">${formatDate(t.date)}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Helper to log debt payments as transactions
+function logTransaction(type, description, amount, account) {
+    if (!state.transactions) state.transactions = [];
+    
+    state.transactions.push({
+        type: type,
+        description: description,
+        amount: amount,
+        account: account,
+        date: new Date().toISOString()
+    });
+    
+    saveState();
+}
+
 // Utility functions
 function formatCurrency(amount) {
     return '₦' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 function generateId() {

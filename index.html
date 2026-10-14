@@ -43,6 +43,18 @@
                     <span>Total Pending:</span>
                     <strong id="totalPendingObligations">₦0.00</strong>
                 </div>
+
+                <!-- Utility Buttons -->
+                <div class="sidebar-utilities">
+                    <button class="utility-btn" onclick="openCalculator()">
+                        <span class="utility-icon">🧮</span>
+                        <span>Calculator</span>
+                    </button>
+                    <button class="utility-btn" onclick="openRecentTransactions()">
+                        <span class="utility-icon">📜</span>
+                        <span>Recent Transactions</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -109,6 +121,30 @@
                 </div>
             </div>
             <div id="profitsList" class="profits-list"></div>
+            </div>
+        </section>
+
+        <!-- Spending Tracker Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 onclick="toggleSection('spendings')" style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                    <span id="spendingsToggleIcon">▼</span>
+                    💸 Spending Tracker
+                </h2>
+                <button class="btn-primary" onclick="addSpending()">+ Add Spending</button>
+            </div>
+            <div id="spendingsContent" class="section-content">
+            <div id="spendingsList" class="spendings-list"></div>
+            <div id="spendingsTotal" class="profit-summary" style="display: none; margin-top: 1rem;">
+                <div class="summary-item" id="pendingSpendingRow" style="display: none;">
+                    <span>⏳ Pending:</span>
+                    <strong id="pendingSpending" style="color: var(--warning);">₦0.00</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Total Paid:</span>
+                    <strong id="totalSpending" style="color: var(--danger);">₦0.00</strong>
+                </div>
+            </div>
             </div>
         </section>
 
@@ -236,6 +272,46 @@
         </div>
     </div>
 
+    <!-- Modal for Add Spending -->
+    <div id="spendingModal" class="modal">
+        <div class="modal-content">
+            <h3>Record Spending</h3>
+            <input type="text" id="spendingDescription" placeholder="What did you buy? (e.g., Groceries)" required>
+            <input type="number" id="spendingAmount" placeholder="Amount spent" min="0" step="0.01" required>
+            
+            <label class="checkbox-label">
+                <input type="checkbox" id="spendingAccountCheck" onchange="toggleSpendingAccountSelect()">
+                Assign to account now
+            </label>
+            
+            <div id="spendingAccountSelectDiv" style="display: none;">
+                <label>Paid from which account?</label>
+                <select id="spendingAccountSelect" class="account-select" style="width: 100%; margin-bottom: 1rem;">
+                </select>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeSpendingModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmAddSpending()">Record</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Assign Spending Account -->
+    <div id="assignSpendingModal" class="modal">
+        <div class="modal-content">
+            <h3>Assign to Account</h3>
+            <p id="assignSpendingDescription" style="margin-bottom: 1rem; color: var(--text);"></p>
+            <label>Paid from which account?</label>
+            <select id="assignSpendingAccountSelect" class="account-select" style="width: 100%; margin-bottom: 1rem;">
+            </select>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeAssignSpendingModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmAssignSpending()">Assign</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal for Pay Debt -->
     <div id="payDebtModal" class="modal">
         <div class="modal-content">
@@ -355,6 +431,65 @@
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeConfirmModal()">Cancel</button>
                 <button class="btn-danger" id="confirmButton" onclick="executeConfirmAction()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator Modal -->
+    <div id="calculatorModal" class="modal">
+        <div class="modal-content calculator-modal">
+            <div class="calculator-header">
+                <h3>🧮 Calculator</h3>
+                <button class="btn-icon-small" onclick="closeCalculator()" style="background: var(--text-light);">×</button>
+            </div>
+            <div class="calculator-display" id="calcDisplay">0</div>
+            <div class="calculator-buttons">
+                <button class="calc-btn calc-function" onclick="clearCalc()">C</button>
+                <button class="calc-btn calc-function" onclick="deleteCalc()">⌫</button>
+                <button class="calc-btn calc-function" onclick="percentCalc()">%</button>
+                <button class="calc-btn calc-operator" onclick="operatorCalc('/')">÷</button>
+                
+                <button class="calc-btn" onclick="numberCalc('7')">7</button>
+                <button class="calc-btn" onclick="numberCalc('8')">8</button>
+                <button class="calc-btn" onclick="numberCalc('9')">9</button>
+                <button class="calc-btn calc-operator" onclick="operatorCalc('*')">×</button>
+                
+                <button class="calc-btn" onclick="numberCalc('4')">4</button>
+                <button class="calc-btn" onclick="numberCalc('5')">5</button>
+                <button class="calc-btn" onclick="numberCalc('6')">6</button>
+                <button class="calc-btn calc-operator" onclick="operatorCalc('-')">−</button>
+                
+                <button class="calc-btn" onclick="numberCalc('1')">1</button>
+                <button class="calc-btn" onclick="numberCalc('2')">2</button>
+                <button class="calc-btn" onclick="numberCalc('3')">3</button>
+                <button class="calc-btn calc-operator" onclick="operatorCalc('+')">+</button>
+                
+                <button class="calc-btn" onclick="numberCalc('0')" style="grid-column: span 2;">0</button>
+                <button class="calc-btn" onclick="numberCalc('.')">.</button>
+                <button class="calc-btn calc-equals" onclick="equalsCalc()">=</button>
+            </div>
+            <div class="calc-history" id="calcHistory">
+                <div class="calc-history-title">History</div>
+                <div id="calcHistoryList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions Modal -->
+    <div id="transactionsModal" class="modal">
+        <div class="modal-content transactions-modal">
+            <div class="transactions-header">
+                <h3>📜 Recent Transactions</h3>
+                <button class="btn-icon-small" onclick="closeRecentTransactions()" style="background: var(--text-light);">×</button>
+            </div>
+            <div class="transaction-filters">
+                <button class="filter-btn active" data-filter="all" onclick="filterTransactions('all')">All</button>
+                <button class="filter-btn" data-filter="profits" onclick="filterTransactions('profits')">Profits</button>
+                <button class="filter-btn" data-filter="spendings" onclick="filterTransactions('spendings')">Spending</button>
+                <button class="filter-btn" data-filter="debts" onclick="filterTransactions('debts')">Debts</button>
+            </div>
+            <div class="transactions-list" id="transactionsList">
+                <div class="empty-state">No transactions yet</div>
             </div>
         </div>
     </div>

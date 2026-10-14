@@ -253,6 +253,75 @@ body {
     border-left: 4px solid var(--danger);
 }
 
+/* Spendings List */
+.spendings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.spending-item {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--primary);
+}
+
+.spending-item.pending-spending {
+    border-left-color: var(--warning);
+    background: linear-gradient(to right, #fff7ed 0%, var(--card-bg) 10%);
+}
+
+.spending-pending {
+    font-size: 0.875rem;
+    color: var(--warning);
+    font-weight: 600;
+}
+
+.spending-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.spending-info {
+    flex: 1;
+}
+
+.spending-info h4 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.spending-details {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.spending-amount {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.spending-from {
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+.spending-date {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.spending-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
 .debt-header {
     display: flex;
     justify-content: space-between;
@@ -759,6 +828,311 @@ body {
 
 .obligation-total strong {
     font-size: 1.125rem;
+}
+
+/* Sidebar Utilities */
+.sidebar-utilities {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.utility-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.utility-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.utility-icon {
+    font-size: 1.25rem;
+}
+
+/* Calculator Modal */
+.calculator-modal {
+    max-width: 350px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.calculator-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    position: sticky;
+    top: 0;
+    background: var(--card-bg);
+    z-index: 10;
+    padding-bottom: 0.5rem;
+}
+
+.calculator-header h3 {
+    margin: 0;
+}
+
+.calculator-display {
+    background: var(--bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: right;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    word-wrap: break-word;
+    min-height: 60px;
+    overflow-x: auto;
+}
+
+.calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.calc-btn {
+    padding: 1.25rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calc-btn:active {
+    transform: scale(0.95);
+}
+
+.calc-function {
+    background: var(--bg);
+    color: var(--danger);
+}
+
+.calc-operator {
+    background: var(--primary);
+    color: white;
+}
+
+.calc-equals {
+    background: var(--success);
+    color: white;
+}
+
+.calc-history {
+    max-height: 200px;
+    overflow-y: auto;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+}
+
+.calc-history::-webkit-scrollbar {
+    width: 6px;
+}
+
+.calc-history::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-radius: 3px;
+}
+
+.calc-history::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.calc-history::-webkit-scrollbar-thumb:hover {
+    background: var(--text-light);
+}
+
+.calc-history-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+}
+
+.calc-history-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    margin-bottom: 0.25rem;
+    background: var(--bg);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.calc-history-item:hover {
+    background: #e2e8f0;
+}
+
+.calc-expression {
+    color: var(--text-light);
+}
+
+.calc-result {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.calc-history-empty {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.875rem;
+    padding: 1rem;
+}
+
+/* Transactions Modal */
+.transactions-modal {
+    max-width: 500px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.transactions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.transactions-header h3 {
+    margin: 0;
+}
+
+.transaction-filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+    transition: all 0.2s;
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.transactions-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 450px;
+    padding-right: 0.5rem;
+}
+
+.transactions-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.transactions-list::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-radius: 3px;
+}
+
+.transactions-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.transactions-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-light);
+}
+
+.transaction-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    border-left: 4px solid var(--primary);
+}
+
+.transaction-item.transaction-success {
+    border-left-color: var(--success);
+}
+
+.transaction-item.transaction-danger {
+    border-left-color: var(--danger);
+}
+
+.transaction-item.transaction-warning {
+    border-left-color: var(--warning);
+}
+
+.transaction-icon {
+    font-size: 1.5rem;
+}
+
+.transaction-info {
+    flex: 1;
+}
+
+.transaction-desc {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    margin-bottom: 0.125rem;
+}
+
+.transaction-account {
+    font-size: 0.8125rem;
+    color: var(--text-light);
+}
+
+.transaction-right {
+    text-align: right;
+}
+
+.transaction-amount {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.125rem;
+}
+
+.transaction-amount.positive {
+    color: var(--success);
+}
+
+.transaction-amount.negative {
+    color: var(--danger);
+}
+
+.transaction-date {
+    font-size: 0.75rem;
+    color: var(--text-light);
 }
 
 @media (max-width: 768px) {
