@@ -322,6 +322,126 @@ body {
     gap: 0.5rem;
 }
 
+/* Goals List */
+.goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.goal-item {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--primary);
+}
+
+.goal-item.goal-complete {
+    border-left-color: var(--success);
+    background: linear-gradient(to right, #ecfdf5 0%, var(--card-bg) 10%);
+}
+
+.goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 0.75rem;
+}
+
+.goal-info {
+    flex: 1;
+}
+
+.goal-info h4 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.goal-progress-text {
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+    font-size: 0.9375rem;
+}
+
+.goal-current {
+    font-weight: 700;
+    color: var(--success);
+}
+
+.goal-separator {
+    color: var(--text-light);
+}
+
+.goal-target {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.goal-percent {
+    color: var(--text-light);
+    font-size: 0.875rem;
+}
+
+.goal-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.goal-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.goal-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success) 0%, var(--primary) 100%);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+/* Completed Goals */
+.completed-goal-item {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 0.875rem;
+    margin-bottom: 0.5rem;
+    border-left: 4px solid var(--success);
+}
+
+.completed-goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.completed-goal-info {
+    flex: 1;
+}
+
+.completed-goal-info h4 {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    margin-bottom: 0.25rem;
+}
+
+.completed-goal-details {
+    font-size: 0.8125rem;
+    color: var(--text-light);
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.125rem;
+}
+
+.completed-goal-date {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
 .debt-header {
     display: flex;
     justify-content: space-between;
@@ -1162,3 +1282,83 @@ body {
         --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
     }
 }
+
+/* Savings Management */
+.savings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.savings-header h3 {
+    margin: 0;
+}
+
+.savings-list {
+    max-height: 450px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.savings-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.savings-list::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-radius: 3px;
+}
+
+.savings-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.savings-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-light);
+}
+
+.savings-account-item {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-left: 4px solid var(--success);
+}
+
+.savings-account-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.savings-account-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.savings-account-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.savings-account-info h4 {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.savings-account-amount {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--success);
+}
+
+.savings-account-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+

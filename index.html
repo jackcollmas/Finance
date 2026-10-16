@@ -54,6 +54,14 @@
                         <span class="utility-icon">📜</span>
                         <span>Recent Transactions</span>
                     </button>
+                    <button class="utility-btn" onclick="openCompletedGoals()">
+                        <span class="utility-icon">🏆</span>
+                        <span>Completed Goals</span>
+                    </button>
+                    <button class="utility-btn" onclick="openManageSavings()">
+                        <span class="utility-icon">💰</span>
+                        <span>Manage Savings</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -69,8 +77,19 @@
         <!-- Total Overview -->
         <section class="overview">
             <div class="total-card">
-                <div class="total-label">Total Available</div>
+                <div class="total-label">Available Now</div>
                 <div class="total-amount" id="totalAmount">₦0.00</div>
+                <div id="totalSavingsDiv" style="display: none; margin-top: 0.75rem;">
+                    <div class="total-label" style="font-size: 0.875rem;">💰 Total Savings</div>
+                    <div style="font-size: 1.5rem; font-weight: 600; color: #10b981;" id="totalSavingsAmount">₦0.00</div>
+                </div>
+                <div id="goalsAmount" style="display: none; margin-top: 0.75rem;">
+                    <div class="total-label" style="font-size: 0.875rem;">🎯 Goals Progress</div>
+                    <div style="font-size: 1.25rem; font-weight: 600; color: var(--warning);">
+                        <span id="goalsAllocatedValue">₦0.00</span> / <span id="goalsTargetValue">₦0.00</span>
+                        <span style="font-size: 0.875rem; color: var(--text-light);">(<span id="goalsPercent">0</span>%)</span>
+                    </div>
+                </div>
                 <div id="afterObligations" style="display: none;">
                     <div class="total-label" style="margin-top: 1rem; font-size: 0.875rem;">After Bills & Tithe</div>
                     <div class="after-obligations-amount" id="afterObligationsAmount">₦0.00</div>
@@ -143,6 +162,34 @@
                 <div class="summary-item">
                     <span>Total Paid:</span>
                     <strong id="totalSpending" style="color: var(--danger);">₦0.00</strong>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- Financial Goals Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 onclick="toggleSection('goals')" style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                    <span id="goalsToggleIcon">▼</span>
+                    🎯 Financial Goals
+                </h2>
+                <button class="btn-primary" onclick="addGoal()">+ Add Goal</button>
+            </div>
+            <div id="goalsContent" class="section-content">
+            <div id="goalsList" class="goals-list"></div>
+            <div id="goalsTotal" class="profit-summary" style="display: none; margin-top: 1rem;">
+                <div class="summary-item">
+                    <span>Total Allocated:</span>
+                    <strong id="goalsAllocated" style="color: var(--success);">₦0.00</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Total Target:</span>
+                    <strong id="goalsTarget" style="color: var(--primary);">₦0.00</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Overall Progress:</span>
+                    <strong id="goalsTotalPercent" style="color: var(--warning);">0%</strong>
                 </div>
             </div>
             </div>
@@ -308,6 +355,51 @@
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeAssignSpendingModal()">Cancel</button>
                 <button class="btn-primary" onclick="confirmAssignSpending()">Assign</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Add Goal -->
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+            <h3>Add Financial Goal</h3>
+            <input type="text" id="goalName" placeholder="Goal name (e.g., Fix Phone, Emergency Fund)" required>
+            <input type="number" id="goalTarget" placeholder="Target amount" min="0" step="0.01" required>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeGoalModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmAddGoal()">Add Goal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Add Money to Goal -->
+    <div id="addGoalMoneyModal" class="modal">
+        <div class="modal-content">
+            <h3>Add Money to Goal</h3>
+            <p id="addGoalName" style="font-weight: 600; color: var(--text); margin-bottom: 0.5rem;"></p>
+            <p style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 1rem;">
+                Remaining: <strong id="addGoalRemaining">₦0.00</strong>
+            </p>
+            <input type="number" id="addGoalAmount" placeholder="Amount to add" min="0" step="0.01" required>
+            <label>Debit from which account?</label>
+            <select id="addGoalAccountSelect" class="account-select" style="width: 100%; margin-bottom: 1rem;">
+            </select>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeAddGoalMoneyModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmAddGoalMoney()">Add Money</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Completed Goals -->
+    <div id="completedGoalsModal" class="modal">
+        <div class="modal-content transactions-modal">
+            <div class="transactions-header">
+                <h3>🏆 Completed Goals</h3>
+                <button class="btn-icon-small" onclick="closeCompletedGoalsModal()" style="background: var(--text-light);">×</button>
+            </div>
+            <div class="transactions-list" id="completedGoalsList">
+                <div class="empty-state">No completed goals yet</div>
             </div>
         </div>
     </div>
@@ -490,6 +582,46 @@
             </div>
             <div class="transactions-list" id="transactionsList">
                 <div class="empty-state">No transactions yet</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Manage Savings -->
+    <div id="manageSavingsModal" class="modal">
+        <div class="modal-content transactions-modal">
+            <div class="savings-header">
+                <h3>💰 Manage Savings</h3>
+                <button class="btn-primary" onclick="addSavingsAccount()">+ Add Savings</button>
+            </div>
+            <div class="savings-list" id="savingsList">
+                <div class="empty-state">No savings accounts yet</div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeManageSavings()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit Savings Account -->
+    <div id="savingsAccountModal" class="modal">
+        <div class="modal-content">
+            <h3 id="savingsAccountTitle">Add Savings Account</h3>
+            <input type="text" id="savingsAccountName" placeholder="Savings name (e.g., Emergency Fund, Fixed Deposit)" required>
+            <input type="number" id="savingsAccountAmount" placeholder="Amount" min="0" step="0.01" required>
+            <label>Choose an icon:</label>
+            <div class="icon-picker" id="savingsIconPicker">
+                <button type="button" class="icon-option selected" data-icon="💰">💰</button>
+                <button type="button" class="icon-option" data-icon="🔒">🔒</button>
+                <button type="button" class="icon-option" data-icon="🔐">🔐</button>
+                <button type="button" class="icon-option" data-icon="💎">💎</button>
+                <button type="button" class="icon-option" data-icon="🏠">🏠</button>
+                <button type="button" class="icon-option" data-icon="🚗">🚗</button>
+                <button type="button" class="icon-option" data-icon="📱">📱</button>
+                <button type="button" class="icon-option" data-icon="🎯">🎯</button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeSavingsAccountModal()">Cancel</button>
+                <button class="btn-primary" id="savingsAccountSubmitBtn" onclick="confirmSavingsAccount()">Add</button>
             </div>
         </div>
     </div>
