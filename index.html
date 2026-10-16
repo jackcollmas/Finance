@@ -362,12 +362,12 @@
     <!-- Modal for Add Goal -->
     <div id="goalModal" class="modal">
         <div class="modal-content">
-            <h3>Add Financial Goal</h3>
+            <h3 id="goalModalTitle">Add Financial Goal</h3>
             <input type="text" id="goalName" placeholder="Goal name (e.g., Fix Phone, Emergency Fund)" required>
             <input type="number" id="goalTarget" placeholder="Target amount" min="0" step="0.01" required>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeGoalModal()">Cancel</button>
-                <button class="btn-primary" onclick="confirmAddGoal()">Add Goal</button>
+                <button class="btn-primary" id="goalSubmitBtn" onclick="confirmAddGoal()">Add Goal</button>
             </div>
         </div>
     </div>
@@ -400,6 +400,19 @@
             </div>
             <div class="transactions-list" id="completedGoalsList">
                 <div class="empty-state">No completed goals yet</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Goal Contributions -->
+    <div id="goalContributionsModal" class="modal">
+        <div class="modal-content transactions-modal">
+            <div class="transactions-header">
+                <h3 id="goalContributionsTitle">Goal Contributions</h3>
+                <button class="btn-icon-small" onclick="closeGoalContributionsModal()" style="background: var(--text-light);">×</button>
+            </div>
+            <div class="contributions-list" id="goalContributionsList">
+                <div class="empty-state">No contributions yet</div>
             </div>
         </div>
     </div>
@@ -607,7 +620,7 @@
         <div class="modal-content">
             <h3 id="savingsAccountTitle">Add Savings Account</h3>
             <input type="text" id="savingsAccountName" placeholder="Savings name (e.g., Emergency Fund, Fixed Deposit)" required>
-            <input type="number" id="savingsAccountAmount" placeholder="Amount" min="0" step="0.01" required>
+            <input type="number" id="savingsAccountAmount" placeholder="Initial amount (optional)" min="0" step="0.01">
             <label>Choose an icon:</label>
             <div class="icon-picker" id="savingsIconPicker">
                 <button type="button" class="icon-option selected" data-icon="💰">💰</button>
@@ -622,6 +635,37 @@
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeSavingsAccountModal()">Cancel</button>
                 <button class="btn-primary" id="savingsAccountSubmitBtn" onclick="confirmSavingsAccount()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Add Money to Savings -->
+    <div id="addSavingsMoneyModal" class="modal">
+        <div class="modal-content">
+            <h3 id="addSavingsMoneyTitle">Add Money to Savings</h3>
+            <p style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 1rem;">
+                Current balance: <strong id="addSavingsCurrentAmount">₦0.00</strong>
+            </p>
+            <input type="number" id="addSavingsMoneyAmount" placeholder="Amount to deposit" min="0" step="0.01" required>
+            <label>Transfer from which account?</label>
+            <select id="addSavingsMoneyAccountSelect" class="account-select" style="width: 100%; margin-bottom: 1rem;">
+            </select>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeAddSavingsMoneyModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmAddSavingsMoneyDeposit()">Deposit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Savings Deposits History -->
+    <div id="savingsDepositsModal" class="modal">
+        <div class="modal-content transactions-modal">
+            <div class="transactions-header">
+                <h3 id="savingsDepositsTitle">Savings Deposits</h3>
+                <button class="btn-icon-small" onclick="closeSavingsDepositsModal()" style="background: var(--text-light);">×</button>
+            </div>
+            <div class="contributions-list" id="savingsDepositsList">
+                <div class="empty-state">No deposits yet</div>
             </div>
         </div>
     </div>

@@ -483,6 +483,7 @@ function renderGoals() {
         goalsList.innerHTML = state.goals.map(goal => {
             const percent = Math.round((goal.current / goal.target) * 100);
             const isComplete = goal.current >= goal.target;
+            const contributionCount = goal.contributions ? goal.contributions.length : 0;
             return `
             <div class="goal-item ${isComplete ? 'goal-complete' : ''}">
                 <div class="goal-header">
@@ -500,12 +501,20 @@ function renderGoals() {
                             `<button class="btn-small btn-success" onclick="addMoneyToGoal('${goal.id}')">Add ₦</button>` : 
                             `<button class="btn-small btn-primary" onclick="completeGoal('${goal.id}')">Complete</button>`
                         }
+                        <button class="btn-small btn-secondary" onclick="editGoal('${goal.id}')" style="padding: 0.5rem 0.75rem;">✏️</button>
                         <button class="btn-small btn-danger" onclick="deleteGoal('${goal.id}')">Delete</button>
                     </div>
                 </div>
                 <div class="goal-progress-bar">
                     <div class="goal-progress-fill" style="width: ${Math.min(percent, 100)}%"></div>
                 </div>
+                ${contributionCount > 0 ? 
+                    `<div style="margin-top: 0.5rem;">
+                        <button class="btn-small btn-secondary" onclick="viewGoalContributions('${goal.id}')" style="font-size: 0.8125rem; padding: 0.375rem 0.75rem;">
+                            📊 View Contributions (${contributionCount})
+                        </button>
+                    </div>` 
+                : ''}
             </div>
         `;
         }).join('');
@@ -523,8 +532,11 @@ function renderGoals() {
 }
 
 function addGoal() {
+    currentGoalId = null;
     document.getElementById('goalName').value = '';
     document.getElementById('goalTarget').value = '';
+    document.getElementById('goalModalTitle').textContent = 'Add Financial Goal';
+    document.getElementById('goalSubmitBtn').textContent = 'Add Goal';
     showModal('goalModal');
     setTimeout(() => document.getElementById('goalName').focus(), 100);
 }
@@ -543,20 +555,46 @@ function confirmAddGoal() {
         return;
     }
 
-    const goal = {
-        id: generateId(),
-        name: name,
-        target: target,
-        current: 0,
-        date: new Date().toISOString()
-    };
-
     if (!state.goals) state.goals = [];
-    state.goals.push(goal);
+    
+    if (currentGoalId) {
+        // Update existing goal
+        const goal = state.goals.find(g => g.id === currentGoalId);
+        if (goal) {
+            goal.name = name;
+            goal.target = target;
+        }
+    } else {
+        // Create new goal
+        const goal = {
+            id: generateId(),
+            name: name,
+            target: target,
+            current: 0,
+            date: new Date().toISOString(),
+            contributions: [] // Track individual contributions
+        };
+        state.goals.push(goal);
+    }
 
     saveState();
     render();
     closeGoalModal();
+}
+
+function editGoal(goalId) {
+    const goal = state.goals.find(g => g.id === goalId);
+    if (!goal) return;
+
+    currentGoalId = goalId;
+    
+    document.getElementById('goalName').value = goal.name;
+    document.getElementById('goalTarget').value = goal.target;
+    document.getElementById('goalModalTitle').textContent = 'Edit Goal';
+    document.getElementById('goalSubmitBtn').textContent = 'Update';
+    
+    showModal('goalModal');
+    setTimeout(() => document.getElementById('goalName').focus(), 100);
 }
 
 function addMoneyToGoal(goalId) {
@@ -611,12 +649,77 @@ function processGoalDeposit(goal, amount, account) {
     goal.current += amount;
     state.accounts[account] -= amount;
     
+    // Track contribution
+    if (!goal.contributions) goal.contributions = [];
+    goal.contributions.push({
+        amount: amount,
+        account: getAccountName(account),
+        date: new Date().toISOString()
+    });
+    
     // Log transaction
     logTransaction('goal_deposit', goal.name, amount, getAccountName(account));
     
     saveState();
     render();
     closeAddGoalMoneyModal();
+}
+
+function viewGoalContributions(goalId) {
+    const goal = state.goals.find(g => g.id === goalId);
+    if (!goal) return;
+    
+    currentGoalId = goalId;
+    
+    document.getElementById('goalContributionsTitle').textContent = `${goal.name} - Contributions`;
+    
+    const contributionsList = document.getElementById('goalContributionsList');
+    
+    if (!goal.contributions || goal.contributions.length === 0) {
+        contributionsList.innerHTML = '<div class="empty-state">No contributions yet</div>';
+    } else {
+        contributionsList.innerHTML = goal.contributions.map((contrib, index) => `
+            <div class="contribution-item">
+                <div class="contribution-info">
+                    <div class="contribution-amount">${formatCurrency(contrib.amount)}</div>
+                    <div class="contribution-details">
+                        <span>From ${contrib.account}</span>
+                        <span>•</span>
+                        <span>${formatDate(contrib.date)}</span>
+                    </div>
+                </div>
+                <button class="btn-icon-small" onclick="deleteContribution('${goalId}', ${index})" style="background: var(--danger);">×</button>
+            </div>
+        `).join('');
+    }
+    
+    showModal('goalContributionsModal');
+}
+
+function deleteContribution(goalId, contributionIndex) {
+    const goal = state.goals.find(g => g.id === goalId);
+    if (!goal || !goal.contributions) return;
+    
+    const contribution = goal.contributions[contributionIndex];
+    
+    showConfirmModal(
+        'Delete Contribution',
+        `Remove ${formatCurrency(contribution.amount)} contribution?`,
+        'This will reduce the goal progress.',
+        () => {
+            goal.current -= contribution.amount;
+            goal.contributions.splice(contributionIndex, 1);
+            
+            saveState();
+            render();
+            viewGoalContributions(goalId); // Refresh the modal
+        }
+    );
+}
+
+function closeGoalContributionsModal() {
+    closeAllModals();
+    currentGoalId = null;
 }
 
 function completeGoal(goalId) {
@@ -741,7 +844,9 @@ function renderSavingsList() {
         return;
     }
     
-    savingsList.innerHTML = savingsAccounts.map(({ key, value, meta }) => `
+    savingsList.innerHTML = savingsAccounts.map(({ key, value, meta }) => {
+        const depositCount = meta.deposits ? meta.deposits.length : 0;
+        return `
         <div class="savings-account-item">
             <div class="savings-account-header">
                 <div class="savings-account-icon">${meta.icon}</div>
@@ -750,12 +855,151 @@ function renderSavingsList() {
                     <div class="savings-account-amount">${formatCurrency(value)}</div>
                 </div>
                 <div class="savings-account-actions">
-                    <button class="btn-small btn-primary" onclick="editSavingsAccount('${key}')">Edit</button>
+                    <button class="btn-small btn-success" onclick="addMoneyToSavings('${key}')">Add ₦</button>
+                    <button class="btn-small btn-secondary" onclick="editSavingsAccount('${key}')" style="padding: 0.5rem 0.75rem;">✏️</button>
                     <button class="btn-small btn-danger" onclick="deleteSavingsAccount('${key}')">Delete</button>
                 </div>
             </div>
+            ${depositCount > 0 ? 
+                `<div style="margin-top: 0.5rem;">
+                    <button class="btn-small btn-secondary" onclick="viewSavingsDeposits('${key}')" style="font-size: 0.8125rem; padding: 0.375rem 0.75rem; width: 100%;">
+                        📊 View Deposits (${depositCount})
+                    </button>
+                </div>` 
+            : ''}
         </div>
-    `).join('');
+    `;
+    }).join('');
+}
+
+function addMoneyToSavings(accountKey) {
+    const meta = state.accountsMeta[accountKey];
+    const currentAmount = state.accounts[accountKey];
+    
+    currentSavingsKey = accountKey;
+    
+    document.getElementById('addSavingsMoneyTitle').textContent = `Add Money to ${meta.name}`;
+    document.getElementById('addSavingsCurrentAmount').textContent = formatCurrency(currentAmount);
+    document.getElementById('addSavingsMoneyAmount').value = '';
+    
+    const select = document.getElementById('addSavingsMoneyAccountSelect');
+    select.innerHTML = generateAccountSelect(true); // Only show liquid accounts
+    
+    showModal('addSavingsMoneyModal');
+    setTimeout(() => document.getElementById('addSavingsMoneyAmount').focus(), 100);
+}
+
+function confirmAddSavingsMoneyDeposit() {
+    const amount = parseFloat(document.getElementById('addSavingsMoneyAmount').value);
+    const sourceAccount = document.getElementById('addSavingsMoneyAccountSelect').value;
+    
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+    }
+    
+    // Check if source account has sufficient funds
+    if (state.accounts[sourceAccount] < amount) {
+        const accountName = getAccountName(sourceAccount);
+        showConfirmModal(
+            'Insufficient Funds',
+            `${accountName} has ${formatCurrency(state.accounts[sourceAccount])} but you're depositing ${formatCurrency(amount)}.`,
+            'Continue anyway?',
+            () => {
+                processSavingsDeposit(amount, sourceAccount);
+            },
+            'Continue'
+        );
+        return;
+    }
+    
+    processSavingsDeposit(amount, sourceAccount);
+}
+
+function processSavingsDeposit(amount, sourceAccount) {
+    const savingsKey = currentSavingsKey;
+    const meta = state.accountsMeta[savingsKey];
+    
+    // Transfer money
+    state.accounts[savingsKey] += amount;
+    state.accounts[sourceAccount] -= amount;
+    
+    // Track deposit
+    if (!meta.deposits) meta.deposits = [];
+    meta.deposits.push({
+        amount: amount,
+        from: getAccountName(sourceAccount),
+        date: new Date().toISOString()
+    });
+    
+    // Log transaction
+    logTransaction('savings_deposit', meta.name, amount, getAccountName(sourceAccount));
+    
+    saveState();
+    render();
+    renderSavingsList();
+    closeAddSavingsMoneyModal();
+}
+
+function viewSavingsDeposits(accountKey) {
+    const meta = state.accountsMeta[accountKey];
+    currentSavingsKey = accountKey;
+    
+    document.getElementById('savingsDepositsTitle').textContent = `${meta.name} - Deposits`;
+    
+    const depositsList = document.getElementById('savingsDepositsList');
+    
+    if (!meta.deposits || meta.deposits.length === 0) {
+        depositsList.innerHTML = '<div class="empty-state">No deposits yet</div>';
+    } else {
+        depositsList.innerHTML = meta.deposits.map((deposit, index) => `
+            <div class="contribution-item">
+                <div class="contribution-info">
+                    <div class="contribution-amount">${formatCurrency(deposit.amount)}</div>
+                    <div class="contribution-details">
+                        <span>From ${deposit.from}</span>
+                        <span>•</span>
+                        <span>${formatDate(deposit.date)}</span>
+                    </div>
+                </div>
+                <button class="btn-icon-small" onclick="deleteSavingsDeposit('${accountKey}', ${index})" style="background: var(--danger);">×</button>
+            </div>
+        `).join('');
+    }
+    
+    showModal('savingsDepositsModal');
+}
+
+function deleteSavingsDeposit(accountKey, depositIndex) {
+    const meta = state.accountsMeta[accountKey];
+    if (!meta.deposits) return;
+    
+    const deposit = meta.deposits[depositIndex];
+    
+    showConfirmModal(
+        'Delete Deposit',
+        `Remove ${formatCurrency(deposit.amount)} deposit?`,
+        'This will reduce the savings balance.',
+        () => {
+            state.accounts[accountKey] -= deposit.amount;
+            meta.deposits.splice(depositIndex, 1);
+            
+            saveState();
+            render();
+            renderSavingsList();
+            viewSavingsDeposits(accountKey); // Refresh the modal
+        }
+    );
+}
+
+function closeAddSavingsMoneyModal() {
+    closeAllModals();
+    currentSavingsKey = null;
+}
+
+function closeSavingsDepositsModal() {
+    closeAllModals();
+    currentSavingsKey = null;
 }
 
 function addSavingsAccount() {
@@ -799,7 +1043,7 @@ function editSavingsAccount(accountKey) {
 
 function confirmSavingsAccount() {
     const name = document.getElementById('savingsAccountName').value.trim();
-    const amount = parseFloat(document.getElementById('savingsAccountAmount').value);
+    const amount = parseFloat(document.getElementById('savingsAccountAmount').value) || 0;
     
     if (!name) {
         alert('Please enter a savings account name');
@@ -812,10 +1056,9 @@ function confirmSavingsAccount() {
     }
     
     if (savingsEditMode) {
-        // Update existing savings account
+        // Update existing savings account (only name and icon, not amount)
         state.accountsMeta[currentSavingsKey].name = name;
         state.accountsMeta[currentSavingsKey].icon = selectedIcon;
-        state.accounts[currentSavingsKey] = amount;
     } else {
         // Create new savings account
         const key = name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
@@ -825,8 +1068,18 @@ function confirmSavingsAccount() {
             name: name,
             icon: selectedIcon,
             order: Object.keys(state.accounts).length,
-            type: 'locked'
+            type: 'locked',
+            deposits: [] // Initialize empty deposits array
         };
+        
+        // If initial amount > 0, record it as first deposit
+        if (amount > 0) {
+            state.accountsMeta[key].deposits.push({
+                amount: amount,
+                from: 'Initial Balance',
+                date: new Date().toISOString()
+            });
+        }
     }
     
     saveState();
@@ -1147,7 +1400,7 @@ function markProfitPaid(profitId) {
     const splitsContainer = document.getElementById('profitAccountSplits');
     splitsContainer.innerHTML = `
         <div class="split-row">
-            ${generateAccountSelect()}
+            <select class="account-select">${generateAccountSelect()}</select>
             <input type="number" class="split-amount" placeholder="Amount" min="0" step="0.01">
             <button class="btn-icon-small" onclick="removeProfitSplit(this)" style="display: none;">×</button>
         </div>
@@ -1161,7 +1414,7 @@ function addProfitSplit() {
     const splitRow = document.createElement('div');
     splitRow.className = 'split-row';
     splitRow.innerHTML = `
-        ${generateAccountSelect()}
+        <select class="account-select">${generateAccountSelect()}</select>
         <input type="number" class="split-amount" placeholder="Amount" min="0" step="0.01">
         <button class="btn-icon-small" onclick="removeProfitSplit(this)">×</button>
     `;
@@ -1308,8 +1561,9 @@ function openPayDebtModal(debtId) {
     showModal('payDebtModal');
 }
 
-function generateAccountSelect() {
+function generateAccountSelect(liquidOnly = false) {
     const accounts = Object.entries(state.accountsMeta)
+        .filter(([key, meta]) => !liquidOnly || meta.type !== 'locked')
         .map(([key, meta]) => ({ key, ...meta }))
         .sort((a, b) => a.order - b.order);
     
@@ -1317,7 +1571,7 @@ function generateAccountSelect() {
         `<option value="${acc.key}">${acc.icon} ${acc.name}</option>`
     ).join('');
     
-    return `<select class="account-select">${options}</select>`;
+    return options;
 }
 
 function addSplit() {

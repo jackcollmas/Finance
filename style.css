@@ -1362,3 +1362,58 @@ body {
     flex-shrink: 0;
 }
 
+/* Goal Contributions */
+.contributions-list {
+    max-height: 450px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.contributions-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.contributions-list::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-radius: 3px;
+}
+
+.contributions-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.contributions-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-light);
+}
+
+.contribution-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    border-left: 4px solid var(--success);
+}
+
+.contribution-info {
+    flex: 1;
+}
+
+.contribution-amount {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--success);
+    margin-bottom: 0.25rem;
+}
+
+.contribution-details {
+    font-size: 0.8125rem;
+    color: var(--text-light);
+    display: flex;
+    gap: 0.5rem;
+}
+
+
