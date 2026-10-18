@@ -303,18 +303,20 @@ function renderProfits() {
             }
             return `
                 <div class="profit-item ${profit.paid ? 'paid' : ''}">
-                    <div class="profit-info">
-                        <div class="profit-desc">${profit.description || 'Profit'}</div>
-                        <div class="profit-details">
-                            <span>Amount: ${formatCurrency(profit.amount)}</span>
-                            <span class="profit-tithe">Tithe (10%): ${formatCurrency(tithe)}</span>
-                            <span class="profit-tithe">Other (10%): ${formatCurrency(other)}</span>
+                    <div class="profit-content">
+                        <div class="profit-info">
+                            <div class="profit-desc">${profit.description || 'Profit'}</div>
+                            <div class="profit-details">
+                                <span>Amount: ${formatCurrency(profit.amount)}</span>
+                                <span class="profit-tithe">Tithe (10%): ${formatCurrency(tithe)}</span>
+                                <span class="profit-tithe">Other (10%): ${formatCurrency(other)}</span>
+                            </div>
+                            ${profit.paid ? `<div class="profit-status">✓ ${paidToText}</div>` : ''}
                         </div>
-                        ${profit.paid ? `<div class="profit-status">✓ ${paidToText}</div>` : ''}
-                    </div>
-                    <div class="profit-actions">
-                        ${!profit.paid ? `<button class="btn-small btn-success" onclick="markProfitPaid('${profit.id}')">Mark Paid</button>` : ''}
-                        <button class="btn-small btn-danger" onclick="deleteProfit('${profit.id}')">Delete</button>
+                        <div class="profit-actions">
+                            ${!profit.paid ? `<button class="btn-small btn-success" onclick="markProfitPaid('${profit.id}')">Mark Paid</button>` : ''}
+                            <button class="btn-small btn-danger" onclick="deleteProfit('${profit.id}')">Delete</button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -342,7 +344,7 @@ function renderDebts() {
     } else {
         debtsList.innerHTML = state.debts.map(debt => `
             <div class="debt-item">
-                <div class="debt-header">
+                <div class="debt-content">
                     <div class="debt-info">
                         <h4>${debt.description}</h4>
                         <div class="debt-amount">${formatCurrency(debt.amount)}</div>
@@ -374,7 +376,7 @@ function renderSpendings() {
             const isPending = !spending.paid;
             return `
             <div class="spending-item ${isPending ? 'pending-spending' : ''}">
-                <div class="spending-header">
+                <div class="spending-content">
                     <div class="spending-info">
                         <h4>${spending.description}</h4>
                         <div class="spending-details">
@@ -496,25 +498,21 @@ function renderGoals() {
                             <span class="goal-percent">(${percent}%)</span>
                         </div>
                     </div>
+                    <div class="goal-progress-bar">
+                        <div class="goal-progress-fill" style="width: ${Math.min(percent, 100)}%"></div>
+                    </div>
                     <div class="goal-actions">
                         ${!isComplete ? 
                             `<button class="btn-small btn-success" onclick="addMoneyToGoal('${goal.id}')">Add ₦</button>` : 
                             `<button class="btn-small btn-primary" onclick="completeGoal('${goal.id}')">Complete</button>`
                         }
-                        <button class="btn-small btn-secondary" onclick="editGoal('${goal.id}')" style="padding: 0.5rem 0.75rem;">✏️</button>
+                        <button class="btn-small btn-secondary" onclick="editGoal('${goal.id}')">Edit</button>
+                        ${contributionCount > 0 ? 
+                            `<button class="btn-small btn-secondary" onclick="viewGoalContributions('${goal.id}')" style="flex: 2;">📊 Contributions (${contributionCount})</button>` 
+                        : ''}
                         <button class="btn-small btn-danger" onclick="deleteGoal('${goal.id}')">Delete</button>
                     </div>
                 </div>
-                <div class="goal-progress-bar">
-                    <div class="goal-progress-fill" style="width: ${Math.min(percent, 100)}%"></div>
-                </div>
-                ${contributionCount > 0 ? 
-                    `<div style="margin-top: 0.5rem;">
-                        <button class="btn-small btn-secondary" onclick="viewGoalContributions('${goal.id}')" style="font-size: 0.8125rem; padding: 0.375rem 0.75rem;">
-                            📊 View Contributions (${contributionCount})
-                        </button>
-                    </div>` 
-                : ''}
             </div>
         `;
         }).join('');
@@ -526,7 +524,7 @@ function renderGoals() {
         
         document.getElementById('goalsAllocated').textContent = formatCurrency(totalAllocated);
         document.getElementById('goalsTarget').textContent = formatCurrency(totalTarget);
-        document.getElementById('goalsTotalPercent').textContent = totalPercent;
+        document.getElementById('goalsTotalPercent').textContent = totalPercent + '%';
         document.getElementById('goalsTotal').style.display = 'block';
     }
 }
@@ -848,21 +846,21 @@ function renderSavingsList() {
         const depositCount = meta.deposits ? meta.deposits.length : 0;
         return `
         <div class="savings-account-item">
-            <div class="savings-account-header">
-                <div class="savings-account-icon">${meta.icon}</div>
-                <div class="savings-account-info">
-                    <h4>${meta.name}</h4>
-                    <div class="savings-account-amount">${formatCurrency(value)}</div>
-                </div>
-                <div class="savings-account-actions">
-                    <button class="btn-small btn-success" onclick="addMoneyToSavings('${key}')">Add ₦</button>
-                    <button class="btn-small btn-secondary" onclick="editSavingsAccount('${key}')" style="padding: 0.5rem 0.75rem;">✏️</button>
-                    <button class="btn-small btn-danger" onclick="deleteSavingsAccount('${key}')">Delete</button>
+            <div class="savings-top-row">
+                <div class="savings-icon">${meta.icon}</div>
+                <div class="savings-details">
+                    <div class="savings-name">${meta.name}</div>
+                    <div class="savings-balance">${formatCurrency(value)}</div>
                 </div>
             </div>
+            <div class="savings-actions-row">
+                <button class="btn-small btn-success" onclick="addMoneyToSavings('${key}')">Add ₦</button>
+                <button class="btn-small btn-secondary" onclick="editSavingsAccount('${key}')">Edit</button>
+                <button class="btn-small btn-danger" onclick="deleteSavingsAccount('${key}')">Delete</button>
+            </div>
             ${depositCount > 0 ? 
-                `<div style="margin-top: 0.5rem;">
-                    <button class="btn-small btn-secondary" onclick="viewSavingsDeposits('${key}')" style="font-size: 0.8125rem; padding: 0.375rem 0.75rem; width: 100%;">
+                `<div class="savings-history-row">
+                    <button class="savings-history-btn" onclick="viewSavingsDeposits('${key}')">
                         📊 View Deposits (${depositCount})
                     </button>
                 </div>` 
@@ -1009,6 +1007,9 @@ function addSavingsAccount() {
     document.getElementById('savingsAccountTitle').textContent = 'Add Savings Account';
     document.getElementById('savingsAccountName').value = '';
     document.getElementById('savingsAccountAmount').value = '';
+    document.getElementById('savingsAccountAmount').disabled = false;
+    document.getElementById('savingsAccountAmount').style.background = '';
+    document.getElementById('savingsAmountLabel').textContent = 'Initial Balance (optional)';
     document.getElementById('savingsAccountSubmitBtn').textContent = 'Add';
     
     selectedIcon = '💰';
@@ -1030,6 +1031,9 @@ function editSavingsAccount(accountKey) {
     document.getElementById('savingsAccountTitle').textContent = 'Edit Savings Account';
     document.getElementById('savingsAccountName').value = meta.name;
     document.getElementById('savingsAccountAmount').value = amount;
+    document.getElementById('savingsAccountAmount').disabled = true;
+    document.getElementById('savingsAccountAmount').style.background = 'var(--bg)';
+    document.getElementById('savingsAmountLabel').innerHTML = 'Current Balance: <strong>' + formatCurrency(amount) + '</strong> (use "Add ₦" to deposit more)';
     document.getElementById('savingsAccountSubmitBtn').textContent = 'Update';
     
     selectedIcon = meta.icon;
@@ -1552,7 +1556,7 @@ function openPayDebtModal(debtId) {
     const splitsContainer = document.getElementById('accountSplits');
     splitsContainer.innerHTML = `
         <div class="split-row">
-            ${generateAccountSelect()}
+            <select class="account-select">${generateAccountSelect()}</select>
             <input type="number" class="split-amount" placeholder="Amount" min="0" step="0.01">
             <button class="btn-icon-small" onclick="removeSplit(this)" style="display: none;">×</button>
         </div>
@@ -1579,7 +1583,7 @@ function addSplit() {
     const splitRow = document.createElement('div');
     splitRow.className = 'split-row';
     splitRow.innerHTML = `
-        ${generateAccountSelect()}
+        <select class="account-select">${generateAccountSelect()}</select>
         <input type="number" class="split-amount" placeholder="Amount" min="0" step="0.01">
         <button class="btn-icon-small" onclick="removeSplit(this)">×</button>
     `;
@@ -1879,7 +1883,7 @@ function payObligation(type) {
     const splitsContainer = document.getElementById('obligationAccountSplits');
     splitsContainer.innerHTML = `
         <div class="split-row">
-            ${generateAccountSelect()}
+            <select class="account-select">${generateAccountSelect()}</select>
             <input type="number" class="split-amount" placeholder="Amount" min="0" step="0.01" value="${amount}">
             <button class="btn-icon-small" onclick="removeObligationSplit(this)" style="display: none;">×</button>
         </div>
@@ -1893,7 +1897,7 @@ function addObligationSplit() {
     const splitRow = document.createElement('div');
     splitRow.className = 'split-row';
     splitRow.innerHTML = `
-        ${generateAccountSelect()}
+        <select class="account-select">${generateAccountSelect()}</select>
         <input type="number" class="split-amount" placeholder="Amount" min="0" step="0.01">
         <button class="btn-icon-small" onclick="removeObligationSplit(this)">×</button>
     `;

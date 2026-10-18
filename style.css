@@ -197,14 +197,17 @@ body {
     border-radius: 12px;
     padding: 1rem 1.25rem;
     box-shadow: var(--shadow);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
 .profit-item.paid {
     opacity: 0.6;
     border-left: 4px solid var(--success);
+}
+
+.profit-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .profit-info {
@@ -213,12 +216,14 @@ body {
 
 .profit-desc {
     font-weight: 600;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
 }
 
 .profit-details {
     display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.25rem;
     font-size: 0.875rem;
     color: var(--text-light);
 }
@@ -230,12 +235,17 @@ body {
 .profit-actions {
     display: flex;
     gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
 }
 
 .profit-status {
     color: var(--success);
     font-weight: 600;
     font-size: 0.875rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
 }
 
 /* Debts List */
@@ -251,6 +261,31 @@ body {
     padding: 1rem 1.25rem;
     box-shadow: var(--shadow);
     border-left: 4px solid var(--danger);
+}
+
+.debt-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.debt-info h4 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.debt-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--danger);
+}
+
+.debt-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
 }
 
 /* Spendings List */
@@ -273,32 +308,52 @@ body {
     background: linear-gradient(to right, #fff7ed 0%, var(--card-bg) 10%);
 }
 
+.spending-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
 .spending-pending {
     font-size: 0.875rem;
     color: var(--warning);
     font-weight: 600;
 }
 
-.spending-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
-}
-
-.spending-info {
-    flex: 1;
-}
-
 .spending-info h4 {
     font-weight: 600;
     margin-bottom: 0.5rem;
+    font-size: 1rem;
 }
 
 .spending-details {
     display: flex;
-    gap: 1rem;
-    align-items: center;
+    flex-direction: column;
+    gap: 0.25rem;
     margin-bottom: 0.25rem;
+}
+
+.spending-amount {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.spending-from {
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+.spending-date {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.spending-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
 }
 
 .spending-amount {
@@ -344,8 +399,8 @@ body {
 
 .goal-header {
     display: flex;
-    justify-content: space-between;
-    align-items: start;
+    flex-direction: column;
+    gap: 0.75rem;
     margin-bottom: 0.75rem;
 }
 
@@ -356,6 +411,7 @@ body {
 .goal-info h4 {
     font-weight: 600;
     margin-bottom: 0.5rem;
+    font-size: 1rem;
 }
 
 .goal-progress-text {
@@ -363,11 +419,13 @@ body {
     gap: 0.5rem;
     align-items: baseline;
     font-size: 0.9375rem;
+    margin-bottom: 0.5rem;
 }
 
 .goal-current {
     font-weight: 700;
     color: var(--success);
+    font-size: 1.125rem;
 }
 
 .goal-separator {
@@ -377,6 +435,7 @@ body {
 .goal-target {
     font-weight: 600;
     color: var(--text);
+    font-size: 1.125rem;
 }
 
 .goal-percent {
@@ -387,6 +446,14 @@ body {
 .goal-actions {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+}
+
+.goal-actions .btn-small {
+    flex: 1;
+    min-width: 90px;
 }
 
 .goal-progress-bar {
@@ -1321,45 +1388,80 @@ body {
 }
 
 .savings-account-item {
-    background: var(--bg);
+    background: var(--card-bg);
     border-radius: 12px;
-    padding: 1rem;
-    margin-bottom: 0.75rem;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
     border-left: 4px solid var(--success);
+    box-shadow: var(--shadow);
 }
 
-.savings-account-header {
+.savings-top-row {
     display: flex;
     align-items: center;
     gap: 1rem;
+    margin-bottom: 1rem;
 }
 
-.savings-account-icon {
-    font-size: 2rem;
+.savings-icon {
+    font-size: 2.5rem;
     flex-shrink: 0;
 }
 
-.savings-account-info {
+.savings-details {
     flex: 1;
     min-width: 0;
 }
 
-.savings-account-info h4 {
+.savings-name {
     font-weight: 600;
     font-size: 1rem;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.375rem;
+    color: var(--text);
 }
 
-.savings-account-amount {
-    font-size: 1.25rem;
+.savings-balance {
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--success);
 }
 
-.savings-account-actions {
-    display: flex;
+.savings-actions-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
-    flex-shrink: 0;
+}
+
+.savings-actions-row .btn-small {
+    width: 100%;
+    text-align: center;
+}
+
+.savings-history-row {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+}
+
+.savings-history-btn {
+    width: 100%;
+    padding: 0.5rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.savings-history-btn:hover {
+    background: #e2e8f0;
+}
+
+.savings-history-btn:active {
+    transform: scale(0.98);
 }
 
 /* Goal Contributions */
