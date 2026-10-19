@@ -277,6 +277,7 @@ function renderAccounts() {
             <div class="account-amount">${formatCurrency(value)}</div>
             <div class="account-actions">
                 <button class="btn-small btn-success" onclick="addMoney('${key}')">+</button>
+                <button class="btn-small btn-primary" onclick="openTransferModal('${key}')" title="Transfer">↔️</button>
                 <button class="btn-small btn-danger" onclick="subtractMoney('${key}')">-</button>
             </div>
         </div>
@@ -2290,4 +2291,79 @@ function registerServiceWorker() {
             .then(reg => console.log('Service Worker registered'))
             .catch(err => console.log('Service Worker registration failed', err));
     }
+}
+
+// Transfer between accounts
+let transferFromAccount = null;
+
+function openTransferModal(fromAccount) {
+    transferFromAccount = fromAccount;
+    const fromMeta = state.accountsMeta[fromAccount];
+    const fromBalance = state.accounts[fromAccount];
+    
+    document.getElementById('transferFromName').textContent = `${fromMeta.icon} ${fromMeta.name}`;
+    document.getElementById('transferFromBalance').textContent = formatCurrency(fromBalance);
+    document.getElementById('transferAmount').value = '';
+    
+    // Populate "to" account select (exclude the from account)
+    const toSelect = document.getElementById('transferToAccount');
+    const accounts = Object.entries(state.accountsMeta)
+        .filter(([key]) => key !== fromAccount)
+        .map(([key, meta]) => ({ key, ...meta }))
+        .sort((a, b) => a.order - b.order);
+    
+    toSelect.innerHTML = accounts.map(acc => 
+        `<option value="${acc.key}">${acc.icon} ${acc.name}</option>`
+    ).join('');
+    
+    showModal('transferModal');
+    setTimeout(() => document.getElementById('transferAmount').focus(), 100);
+}
+
+function confirmTransfer() {
+    const amount = parseFloat(document.getElementById('transferAmount').value);
+    const toAccount = document.getElementById('transferToAccount').value;
+    
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+    }
+    
+    // Check if from account has sufficient funds
+    if (state.accounts[transferFromAccount] < amount) {
+        const fromName = getAccountName(transferFromAccount);
+        showConfirmModal(
+            'Insufficient Funds',
+            `${fromName} has ${formatCurrency(state.accounts[transferFromAccount])} but you're transferring ${formatCurrency(amount)}.`,
+            'Continue anyway?',
+            () => {
+                processTransfer(amount, toAccount);
+            },
+            'Continue'
+        );
+        return;
+    }
+    
+    processTransfer(amount, toAccount);
+}
+
+function processTransfer(amount, toAccount) {
+    const fromName = getAccountName(transferFromAccount);
+    const toName = getAccountName(toAccount);
+    
+    // Transfer money
+    state.accounts[transferFromAccount] -= amount;
+    state.accounts[toAccount] += amount;
+    
+    // Log transaction
+    logTransaction('transfer', `${fromName} → ${toName}`, amount, fromName);
+    
+    saveState();
+    render();
+    closeTransferModal();
+}
+
+function closeTransferModal() {
+    closeAllModals();
+    transferFromAccount = null;
 }

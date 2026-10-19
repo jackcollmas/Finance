@@ -228,6 +228,26 @@
         </div>
     </div>
 
+    <!-- Modal for Transfer Between Accounts -->
+    <div id="transferModal" class="modal">
+        <div class="modal-content">
+            <h3>Transfer Money</h3>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-light); margin-bottom: 0.25rem;">From:</label>
+                <div style="font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem;" id="transferFromName"></div>
+                <div style="font-size: 0.875rem; color: var(--text-light);">Balance: <strong id="transferFromBalance">₦0.00</strong></div>
+            </div>
+            <input type="number" id="transferAmount" placeholder="Amount to transfer" min="0" step="0.01" required>
+            <label>To which account?</label>
+            <select id="transferToAccount" class="account-select" style="width: 100%; margin-bottom: 1rem;">
+            </select>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeTransferModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmTransfer()">Transfer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal for Add Account -->
     <div id="addAccountModal" class="modal">
         <div class="modal-content">
