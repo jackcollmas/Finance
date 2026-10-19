@@ -152,8 +152,13 @@ body {
 
 .account-actions {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
+}
+
+.account-transfer-btn {
+    width: 100%;
+    margin-top: 0.5rem;
 }
 
 /* Profit Summary */

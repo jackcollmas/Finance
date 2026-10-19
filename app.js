@@ -277,9 +277,9 @@ function renderAccounts() {
             <div class="account-amount">${formatCurrency(value)}</div>
             <div class="account-actions">
                 <button class="btn-small btn-success" onclick="addMoney('${key}')">+</button>
-                <button class="btn-small btn-primary" onclick="openTransferModal('${key}')" title="Transfer">↔️</button>
                 <button class="btn-small btn-danger" onclick="subtractMoney('${key}')">-</button>
             </div>
+            <button class="btn-small btn-primary account-transfer-btn" onclick="openTransferModal('${key}')" title="Transfer">↔️</button>
         </div>
     `).join('');
 }
