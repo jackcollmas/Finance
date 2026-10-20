@@ -202,7 +202,10 @@
                     <span id="debtsToggleIcon">▼</span>
                     📋 Debts & Bills
                 </h2>
-                <button class="btn-primary" onclick="addDebt()">+ Add Debt</button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn-success" onclick="payAllDebts()" id="payAllDebtsBtn" style="display: none;">💳 Pay All</button>
+                    <button class="btn-primary" onclick="addDebt()">+ Add Debt</button>
+                </div>
             </div>
             <div id="debtsContent" class="section-content">
             <div id="debtsList" class="debts-list"></div>
@@ -476,6 +479,29 @@
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closePayDebtModal()">Cancel</button>
                 <button class="btn-primary" onclick="confirmPayDebt()">Pay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Pay All Debts -->
+    <div id="payAllDebtsModal" class="modal">
+        <div class="modal-content">
+            <h3>💳 Pay All Debts & Bills</h3>
+            <p style="margin-bottom: 1rem;">You're about to pay <strong id="payAllDebtsCount"></strong> bills totaling <strong id="payAllDebtsTotal" style="color: var(--danger);"></strong></p>
+            
+            <div style="background: var(--bg); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; max-height: 200px; overflow-y: auto;">
+                <div id="payAllDebtsList" style="font-size: 0.875rem;"></div>
+            </div>
+
+            <div class="account-choice">
+                <label>Pay from which account?</label>
+                <select id="payAllDebtsAccount" class="account-select" style="width: 100%; margin-bottom: 1rem;">
+                </select>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closePayAllDebtsModal()">Cancel</button>
+                <button class="btn-success" onclick="confirmPayAllDebts()">Pay All</button>
             </div>
         </div>
     </div>

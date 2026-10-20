@@ -342,6 +342,7 @@ function renderDebts() {
     if (state.debts.length === 0) {
         debtsList.innerHTML = '<div class="empty-state">No debts or bills to track</div>';
         document.getElementById('debtsTotal').style.display = 'none';
+        document.getElementById('payAllDebtsBtn').style.display = 'none';
     } else {
         debtsList.innerHTML = state.debts.map(debt => `
             <div class="debt-item">
@@ -362,6 +363,9 @@ function renderDebts() {
         const totalDebts = state.debts.reduce((sum, d) => sum + d.amount, 0);
         document.getElementById('totalDebts').textContent = formatCurrency(totalDebts);
         document.getElementById('debtsTotal').style.display = 'block';
+        
+        // Show "Pay All" button if there are multiple debts
+        document.getElementById('payAllDebtsBtn').style.display = state.debts.length > 1 ? 'block' : 'none';
     }
 }
 
@@ -2366,4 +2370,78 @@ function processTransfer(amount, toAccount) {
 function closeTransferModal() {
     closeAllModals();
     transferFromAccount = null;
+}
+
+// Pay All Debts at Once
+function payAllDebts() {
+    if (!state.debts || state.debts.length === 0) {
+        alert('No debts to pay');
+        return;
+    }
+    
+    const totalAmount = state.debts.reduce((sum, d) => sum + d.amount, 0);
+    const debtCount = state.debts.length;
+    
+    document.getElementById('payAllDebtsCount').textContent = `${debtCount} bill${debtCount > 1 ? 's' : ''}`;
+    document.getElementById('payAllDebtsTotal').textContent = formatCurrency(totalAmount);
+    
+    // List all debts
+    const debtsList = document.getElementById('payAllDebtsList');
+    debtsList.innerHTML = state.debts.map(debt => `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
+            <span>${debt.description}</span>
+            <strong>${formatCurrency(debt.amount)}</strong>
+        </div>
+    `).join('');
+    
+    // Populate account select
+    const select = document.getElementById('payAllDebtsAccount');
+    select.innerHTML = generateAccountSelect();
+    
+    showModal('payAllDebtsModal');
+}
+
+function confirmPayAllDebts() {
+    const account = document.getElementById('payAllDebtsAccount').value;
+    const totalAmount = state.debts.reduce((sum, d) => sum + d.amount, 0);
+    
+    // Check if account has sufficient funds
+    if (state.accounts[account] < totalAmount) {
+        const accountName = getAccountName(account);
+        showConfirmModal(
+            'Insufficient Funds',
+            `${accountName} has ${formatCurrency(state.accounts[account])} but total bills are ${formatCurrency(totalAmount)}.`,
+            'Continue anyway? This will result in a negative balance.',
+            () => {
+                processPayAllDebts(account);
+            },
+            'Continue'
+        );
+        return;
+    }
+    
+    processPayAllDebts(account);
+}
+
+function processPayAllDebts(account) {
+    const totalAmount = state.debts.reduce((sum, d) => sum + d.amount, 0);
+    
+    // Log each debt payment
+    state.debts.forEach(debt => {
+        logTransaction('debt_payment', debt.description, debt.amount, getAccountName(account));
+    });
+    
+    // Deduct total from account
+    state.accounts[account] -= totalAmount;
+    
+    // Clear all debts
+    state.debts = [];
+    
+    saveState();
+    render();
+    closePayAllDebtsModal();
+}
+
+function closePayAllDebtsModal() {
+    closeAllModals();
 }
