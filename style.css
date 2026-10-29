@@ -117,6 +117,27 @@ body {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.accounts-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.accounts-grid::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-radius: 3px;
+}
+
+.accounts-grid::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.accounts-grid::-webkit-scrollbar-thumb:hover {
+    background: var(--text-light);
 }
 
 .account-card {
@@ -195,6 +216,27 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.profits-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.profits-list::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-radius: 3px;
+}
+
+.profits-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.profits-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-light);
 }
 
 .profit-item {
@@ -258,6 +300,27 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.debts-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.debts-list::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-radius: 3px;
+}
+
+.debts-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.debts-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-light);
 }
 
 .debt-item {
@@ -298,6 +361,27 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.spendings-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.spendings-list::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-radius: 3px;
+}
+
+.spendings-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.spendings-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-light);
 }
 
 .spending-item {
@@ -387,6 +471,27 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.goals-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.goals-list::-webkit-scrollbar-track {
+    background: var(--bg);
+    border-radius: 3px;
+}
+
+.goals-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.goals-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-light);
 }
 
 .goal-item {
