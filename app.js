@@ -279,7 +279,10 @@ function renderAccounts() {
                 <button class="btn-small btn-success" onclick="addMoney('${key}')">+</button>
                 <button class="btn-small btn-danger" onclick="subtractMoney('${key}')">-</button>
             </div>
-            <button class="btn-small btn-primary account-transfer-btn" onclick="openTransferModal('${key}')" title="Transfer">↔️</button>
+            <div class="account-bottom-actions">
+                <button class="btn-small btn-primary" onclick="openTransferModal('${key}')" title="Transfer">↔️</button>
+                <button class="btn-small btn-warning" onclick="openEditAccountModal('${key}')" title="Edit Amount">✏️</button>
+            </div>
         </div>
     `).join('');
 }
@@ -2370,6 +2373,54 @@ function processTransfer(amount, toAccount) {
 function closeTransferModal() {
     closeAllModals();
     transferFromAccount = null;
+}
+
+// Edit Account Amount
+let editAccountKey = null;
+
+function openEditAccountModal(accountKey) {
+    editAccountKey = accountKey;
+    const meta = state.accountsMeta[accountKey];
+    const currentAmount = state.accounts[accountKey];
+    
+    document.getElementById('editAccountTitle').textContent = `Edit ${meta.icon} ${meta.name}`;
+    document.getElementById('editAccountCurrentAmount').textContent = formatCurrency(currentAmount);
+    document.getElementById('editAccountNewAmount').value = currentAmount;
+    
+    showModal('editAccountModal');
+    setTimeout(() => document.getElementById('editAccountNewAmount').focus(), 100);
+}
+
+function confirmEditAccountAmount() {
+    const newAmount = parseFloat(document.getElementById('editAccountNewAmount').value);
+    
+    if (isNaN(newAmount) || newAmount < 0) {
+        alert('Please enter a valid amount (must be 0 or greater)');
+        return;
+    }
+    
+    const oldAmount = state.accounts[editAccountKey];
+    const accountName = getAccountName(editAccountKey);
+    
+    // Update account amount
+    state.accounts[editAccountKey] = newAmount;
+    
+    // Log transaction
+    const difference = newAmount - oldAmount;
+    if (difference > 0) {
+        logTransaction('edit', `${accountName} balance adjusted (+${formatCurrency(difference)})`, newAmount, accountName);
+    } else if (difference < 0) {
+        logTransaction('edit', `${accountName} balance adjusted (${formatCurrency(difference)})`, newAmount, accountName);
+    }
+    
+    saveState();
+    render();
+    closeEditAccountModal();
+}
+
+function closeEditAccountModal() {
+    closeAllModals();
+    editAccountKey = null;
 }
 
 // Pay All Debts at Once
