@@ -1146,6 +1146,7 @@ function addSpending() {
     document.getElementById('spendingAmount').value = '';
     document.getElementById('spendingAccountCheck').checked = false;
     document.getElementById('spendingAccountSelectDiv').style.display = 'none';
+    document.getElementById('spendingPreview').style.display = 'none';
     
     // Populate account select
     const select = document.getElementById('spendingAccountSelect');
@@ -1356,6 +1357,7 @@ function confirmMoneyAction() {
 function addProfit() {
     document.getElementById('profitDescription').value = '';
     document.getElementById('profitAmount').value = '';
+    document.getElementById('profitPreview').style.display = 'none';
     showModal('profitModal');
     setTimeout(() => document.getElementById('profitDescription').focus(), 100);
 }
@@ -1515,6 +1517,7 @@ function deleteProfit(profitId) {
 function addDebt() {
     document.getElementById('debtDescription').value = '';
     document.getElementById('debtAmount').value = '';
+    document.getElementById('debtPreview').style.display = 'none';
     showModal('debtModal');
     setTimeout(() => document.getElementById('debtDescription').focus(), 100);
 }
@@ -2289,6 +2292,88 @@ function generateId() {
 
 function getAccountName(account) {
     return state.accountsMeta[account]?.name || account;
+}
+
+// Preview calculation functions
+function calculateCurrentAfterBillsAndTithe() {
+    // Calculate liquid total (non-locked accounts)
+    const liquidTotal = Object.entries(state.accounts)
+        .filter(([key]) => state.accountsMeta[key]?.type !== 'locked')
+        .reduce((sum, [, val]) => sum + val, 0);
+    
+    // Calculate total debts
+    const totalDebts = state.debts.reduce((sum, d) => sum + d.amount, 0);
+    
+    // Calculate pending obligations
+    const pendingObligations = (state.obligations?.tithe || 0) + (state.obligations?.seed || 0);
+    
+    // Calculate total owed
+    const totalOwed = totalDebts + pendingObligations;
+    
+    return liquidTotal - totalOwed;
+}
+
+function updateProfitPreview() {
+    const amount = parseFloat(document.getElementById('profitAmount').value) || 0;
+    const previewBox = document.getElementById('profitPreview');
+    
+    if (amount <= 0) {
+        previewBox.style.display = 'none';
+        return;
+    }
+    
+    previewBox.style.display = 'block';
+    
+    const tithe = amount * 0.1;
+    const seed = amount * 0.1;
+    const currentAfter = calculateCurrentAfterBillsAndTithe();
+    
+    // Net profit after tithe and seed obligations
+    const netProfit = amount - tithe - seed;
+    
+    // New "After Bills & Tithe" = current + net profit
+    const newAfter = currentAfter + netProfit;
+    
+    document.getElementById('profitPreviewTithe').textContent = formatCurrency(tithe);
+    document.getElementById('profitPreviewSeed').textContent = formatCurrency(seed);
+    document.getElementById('profitPreviewAfter').textContent = formatCurrency(newAfter);
+    document.getElementById('profitPreviewCurrent').textContent = formatCurrency(currentAfter);
+}
+
+function updateSpendingPreview() {
+    const amount = parseFloat(document.getElementById('spendingAmount').value) || 0;
+    const previewBox = document.getElementById('spendingPreview');
+    
+    if (amount <= 0) {
+        previewBox.style.display = 'none';
+        return;
+    }
+    
+    previewBox.style.display = 'block';
+    
+    const currentAfter = calculateCurrentAfterBillsAndTithe();
+    const newAfter = currentAfter - amount;
+    
+    document.getElementById('spendingPreviewAfter').textContent = formatCurrency(newAfter);
+    document.getElementById('spendingPreviewCurrent').textContent = formatCurrency(currentAfter);
+}
+
+function updateDebtPreview() {
+    const amount = parseFloat(document.getElementById('debtAmount').value) || 0;
+    const previewBox = document.getElementById('debtPreview');
+    
+    if (amount <= 0) {
+        previewBox.style.display = 'none';
+        return;
+    }
+    
+    previewBox.style.display = 'block';
+    
+    const currentAfter = calculateCurrentAfterBillsAndTithe();
+    const newAfter = currentAfter - amount;
+    
+    document.getElementById('debtPreviewAfter').textContent = formatCurrency(newAfter);
+    document.getElementById('debtPreviewCurrent').textContent = formatCurrency(currentAfter);
 }
 
 // Service Worker Registration

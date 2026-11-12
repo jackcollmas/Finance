@@ -1467,6 +1467,83 @@ body {
     }
 }
 
+/* Preview Box Styles */
+.preview-box {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1rem 0;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.preview-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.preview-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    font-size: 0.9375rem;
+    color: var(--text);
+}
+
+.preview-item strong {
+    font-size: 1.125rem;
+    color: var(--primary);
+}
+
+.preview-highlight {
+    border-top: 2px solid var(--primary);
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+}
+
+.preview-highlight strong {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--danger);
+}
+
+.preview-current {
+    font-size: 0.8125rem;
+    color: var(--text-light);
+    text-align: center;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+.preview-current span {
+    font-weight: 600;
+    color: var(--text);
+}
+
+@media (prefers-color-scheme: dark) {
+    .preview-box {
+        background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+        border-color: var(--primary);
+    }
+}
+
 /* Savings Management */
 .savings-header {
     display: flex;

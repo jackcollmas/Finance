@@ -301,7 +301,28 @@
         <div class="modal-content">
             <h3>Add Weekly Profit</h3>
             <input type="text" id="profitDescription" placeholder="Description (optional)">
-            <input type="number" id="profitAmount" placeholder="Amount" min="0" step="0.01">
+            <input type="number" id="profitAmount" placeholder="Amount" min="0" step="0.01" oninput="updateProfitPreview()">
+            
+            <!-- Preview Section -->
+            <div id="profitPreview" class="preview-box" style="display: none;">
+                <div class="preview-title">💡 Preview</div>
+                <div class="preview-item">
+                    <span>Tithe (10%):</span>
+                    <strong id="profitPreviewTithe">₦0.00</strong>
+                </div>
+                <div class="preview-item">
+                    <span>Seed (10%):</span>
+                    <strong id="profitPreviewSeed">₦0.00</strong>
+                </div>
+                <div class="preview-item preview-highlight">
+                    <span>After Bills & Tithe:</span>
+                    <strong id="profitPreviewAfter">₦0.00</strong>
+                </div>
+                <div class="preview-current">
+                    (Current: <span id="profitPreviewCurrent">₦0.00</span>)
+                </div>
+            </div>
+            
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeProfitModal()">Cancel</button>
                 <button class="btn-primary" onclick="confirmAddProfit()">Add</button>
@@ -352,7 +373,20 @@
         <div class="modal-content">
             <h3>Add Debt/Bill</h3>
             <input type="text" id="debtDescription" placeholder="Description (e.g., Store XYZ)" required>
-            <input type="number" id="debtAmount" placeholder="Amount owed" min="0" step="0.01" required>
+            <input type="number" id="debtAmount" placeholder="Amount owed" min="0" step="0.01" required oninput="updateDebtPreview()">
+            
+            <!-- Preview Section -->
+            <div id="debtPreview" class="preview-box" style="display: none;">
+                <div class="preview-title">💡 Preview</div>
+                <div class="preview-item preview-highlight">
+                    <span>After Bills & Tithe:</span>
+                    <strong id="debtPreviewAfter">₦0.00</strong>
+                </div>
+                <div class="preview-current">
+                    (Current: <span id="debtPreviewCurrent">₦0.00</span>)
+                </div>
+            </div>
+            
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeDebtModal()">Cancel</button>
                 <button class="btn-primary" onclick="confirmAddDebt()">Add</button>
@@ -365,7 +399,19 @@
         <div class="modal-content">
             <h3>Record Spending</h3>
             <input type="text" id="spendingDescription" placeholder="What did you buy? (e.g., Groceries)" required>
-            <input type="number" id="spendingAmount" placeholder="Amount spent" min="0" step="0.01" required>
+            <input type="number" id="spendingAmount" placeholder="Amount spent" min="0" step="0.01" required oninput="updateSpendingPreview()">
+            
+            <!-- Preview Section -->
+            <div id="spendingPreview" class="preview-box" style="display: none;">
+                <div class="preview-title">💡 Preview</div>
+                <div class="preview-item preview-highlight">
+                    <span>After Bills & Tithe:</span>
+                    <strong id="spendingPreviewAfter">₦0.00</strong>
+                </div>
+                <div class="preview-current">
+                    (Current: <span id="spendingPreviewCurrent">₦0.00</span>)
+                </div>
+            </div>
             
             <label class="checkbox-label">
                 <input type="checkbox" id="spendingAccountCheck" onchange="toggleSpendingAccountSelect()">
